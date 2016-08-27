@@ -2,6 +2,7 @@
 
 var canvas;
 var context;
+var socket = io();
 
 var reqAnimFrame = window.requestAnimationFrame    	  ||
 				   window.webkitRequestAnimationFrame ||
