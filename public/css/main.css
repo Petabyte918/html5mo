@@ -9,3 +9,50 @@ body {
 	font: 13px Helvetica, Arial;
 }
 
+/*--- Chat box ---*/
+#chat-box  {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 250px;
+}
+
+form  {
+	background-color: #C3A555;
+	padding: 3px;
+}
+
+form input {
+	border: 0;
+	padding: 10px;
+	width: 80%;
+	margin-right: .5%;
+}
+
+form button {
+	width: 19%;
+	background: rgb(130, 224, 255);
+	border: none;
+	padding: 10px;
+}
+
+#messages {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	width: 250px;
+	max-height: 300px;
+}
+
+#messages li { 
+	padding: 5px 10px;
+}
+
+#messages li:nth-child(odd) {
+	background: #eee;
+}
+
+#messages li:nth-child(even) {
+	background: #fff;
+}
+

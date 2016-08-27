@@ -51,8 +51,31 @@ sesManager = {
 // Socket connection events
 sio.on('connection', function(socket) {
 	sesManager.addSession(socket);
+	
+	// Warn other players that new user connected
+	sio.emit('chat', {
+		msg: 'User '+sesManager.sessions[sesManager.stripSID(socket.id)].name+' connected',
+		timestamp : Date.now(),
+		sendername : 'Server'
+	});
+	
+	// if we receive chat message, forward it to other players as well
+	socket.on('chat', function(data){
+		sio.emit('chat', {
+			msg: data.msg,
+			timestamp : data.timestamp,
+			sendername : sesManager.sessions[sesManager.stripSID(socket.id)].name
+		});
+	});
 
 	socket.on('disconnect', function() {
+		// Warn other players that user disconnected
+		sio.emit('chat', {
+			msg: 'User '+sesManager.sessions[sesManager.stripSID(socket.id)].name+' disconnected',
+			senderid : socket.id,
+			sendername : 'Server'
+		});
+		
 		sesManager.closeSession(socket);
     });
 });

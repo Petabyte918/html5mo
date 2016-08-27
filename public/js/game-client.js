@@ -49,3 +49,19 @@ function animate() {
 	reqAnimFrame(animate);
 	canvasDraw();
 }
+
+// When user enters text, send it to the server as chat message
+$('form').submit( function() {
+	socket.emit('chat', { 
+		msg: $('#m').val(),
+		timestamp: Date.now()
+	});
+	// clear the input box
+	$('#m').val('');
+	return false;
+});
+
+// When receive message from server, add text to the messages list
+socket.on('chat', function(data){
+	$('#messages').append($('<li>').text(data.sendername+" : "+data.msg));
+});
