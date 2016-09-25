@@ -48,6 +48,46 @@ sesManager = {
 	}
 };
 
+// data transfer object - an interface to send data
+var dto = {
+	sendingUpdates: false,
+	sendTo: function(userID, dataType, data) {
+		var s = sesManager.getSocketByID(userID);
+		if(s) s.emit(dataType, data);
+	},
+	sendToAll: function(dataType, data) {
+		sio.emit(dataType, data);
+	},
+	startEmitUpdates: function(objRef) {
+		this.objectsRef = objRef;
+		if(!this.sendingUpdates) {
+			this.sendingUpdates = true;
+			this.emitUpdates();
+		}
+	},
+	stopEmitUpdates: function() {
+		this.sendingUpdates = false;
+	},
+	emitUpdates: function() {
+		var cd = [];
+		for(var i = 0; i < this.objectsRef.length; i++) {
+			if(this.objectsRef[i]) {
+				if(this.objectsRef[i].status == 1) {
+					cd.push({id: this.objectsRef[i].id, status: 1});
+				} else if(this.objectsRef[i].status == 2) {
+					cd.push({id: this.objectsRef[i].id, status: 2, data: this.objectsRef[i]});
+					this.objectsRef[i].status = 1;
+				}
+			}
+		}
+		sio.emit('updatedata', {
+			data: JSON.stringify(cd),
+			time: Date.now()
+		});
+		if(this.sendingUpdates) setTimeout(this.emitUpdates.bind(this),200);
+	}
+};
+
 // Socket connection events
 sio.on('connection', function(socket) {
 	sesManager.addSession(socket);
