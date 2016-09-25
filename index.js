@@ -1,3 +1,5 @@
+"use strict"
+
 //---   GLOBAL OBJECTS   ---
 
 var express = require('express');
@@ -63,20 +65,31 @@ http.listen(3000, function() {
 sesManager = {
 	sessions:[],
 	nextSes:0,
-	addSession: function (socket) {
+	addSession: function (socket, om) {
 		var newname = "User"+this.nextSes;
 		var sid= this.stripSID(socket.id);
-		console.log(newname+' connected on socket '+sid);
+		var id = om.addObj('char.png', 100, 100, newname, sid);
+		console.log(newname+' connected');
 		this.sessions[sid] = {
 			name: newname,
-			socket: socket
+			socket: socket,
+			oid: id
 		};
 		this.nextSes++;
 	},
-	closeSession: function (socket){
+	closeSession: function (socket, om){
 		var sid = this.stripSID(socket.id);
 		console.log(this.sessions[sid].name+' has disconnected');
+		om.removeObj(this.sessions[sid].oid);
 		delete this.sessions[sid];
+	},
+	getSocketByID: function(id) {
+		for (var i = 0; i < Object.keys(this.sessions).length; i++) {
+			if (this.sessions[Object.keys(this.sessions)[i]] && this.sessions[Object.keys(this.sessions)[i]].oid == id) {
+				return this.sessions[Object.keys(this.sessions)[i]].socket;
+			}
+		}
+		return null;
 	},
 	// Remove unwanted characters from socket ID
 	stripSID: function (sid) {
@@ -126,7 +139,14 @@ var dto = {
 
 // Socket connection events
 sio.on('connection', function(socket) {
-	sesManager.addSession(socket);
+	sesManager.addSession(socket, objManager);
+	// Send initial data package to client
+	socket.emit('condata', {
+		data: {
+			objdata: JSON.stringify(objManager.obj),
+		},
+		time: Date.now()
+	});
 	
 	// Warn other players that new user connected
 	sio.emit('chat', {
@@ -152,6 +172,8 @@ sio.on('connection', function(socket) {
 			sendername : 'Server'
 		});
 		
-		sesManager.closeSession(socket);
+		sesManager.closeSession(socket, objManager);
     });
 });
+
+game.start();
