@@ -2,7 +2,6 @@
 
 var canvas;
 var context;
-var socket = io();
 
 var reqAnimFrame = window.requestAnimationFrame    	  ||
 				   window.webkitRequestAnimationFrame ||
@@ -59,9 +58,4 @@ $('form').submit( function() {
 	// clear the input box
 	$('#m').val('');
 	return false;
-});
-
-// When receive message from server, add text to the messages list
-socket.on('chat', function(data){
-	$('#messages').append($('<li>').text(data.sendername+" : "+data.msg));
 });
