@@ -5,10 +5,46 @@ var app = express();
 var http = require('http').Server(app);
 var sio = require('socket.io')(http);
 var sesManager;
+var h = require('./custom-modules/helpers.js');
+var om = require('./custom-modules/object-models.js');
+var objManager = om.ObjManager;
+var game;
 
-//---   CONSTANTS   ---
+//---   MAIN GAME CONTROLLER   ---
 
-//---   CODE   ---
+var Game = function() {
+	this.lastupdate = Date.now(),
+	this.dtime = 0,
+	this.playing = false,
+	this.start = function() {
+		this.init();
+		this.playing = true;
+		this.lastupdate = Date.now();
+		this.update(); 
+		dto.startEmitUpdates(objManager.obj);
+		console.log('game started!');
+	},
+	this.stop = function() {
+		this.playing = false;
+		dto.stopEmitUpdates();
+		console.log('game stopped!'); 
+	},
+	this.init = function() {
+		objManager.init();
+	},
+	this.update = function() {
+		if(this.playing) {
+			this.dtime = Date.now() - this.lastupdate;
+			this.lastupdate = Date.now();
+			objManager.update(this.dtime);
+			setTimeout(this.update.bind(this),100);
+		}
+	}
+};
+
+game = new Game();
+
+//---   DATA TRANSFER   ---
 
 // Serving static files in ExpressJS
 app.use(express.static(__dirname + '/public'));
