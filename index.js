@@ -174,6 +174,21 @@ sio.on('connection', function(socket) {
 		
 		sesManager.closeSession(socket, objManager);
     });
+	
+	// Socket user interface events
+	socket.on('ui', function(data){
+		switch(data.type) {
+			case 'mcl':
+				var obj = objManager.get(sesManager.sessions[sesManager.stripSID(socket.id)].oid);
+					obj.moveTo(h.V2(data.data.x,data.data.y));
+				break;
+			case 'mcr':
+				break;
+			default:
+				console.log('Error: unknown "ui" data type!');
+				break;
+		}
+	});
 });
 
 game.start();

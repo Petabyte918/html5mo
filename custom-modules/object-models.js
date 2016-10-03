@@ -18,11 +18,49 @@ var BaseObj = function(id, img, x, y, type, name) {
 // Character object - the object that will live and move in game
 var CharObj = function(id, img, x, y, name, sid) {
 	var obj = new BaseObj(id, img, x, y, 'char', name);
-	obj.t = obj.pos;
+	obj.tpos = obj.pos;
 	obj.targetID;
 	obj.action = 'idle';
+	// Session ID
 	obj.sid = sid;
+	// Absolute object speed
+	obj.speed = 0.02;
+	// Movement speed vector
+	obj.v = h.V2(0,0);
+	// Order object to move
+	obj.moveTo = function(targetVector) {
+		this.tpos = targetVector;
+		this.action = 'move';
+	};
+	// Update object
 	obj.update = function(dt) {
+		if(this.action == 'dead') {
+		// if is dead do nothing
+		} else {
+			// if object is moving
+			if(this.action == 'move') {
+				// get target vector
+				var vect = h.V2(this.tpos.x - this.pos.x, this.tpos.y - this.pos.y);
+				// get distance to target
+				var length = Math.sqrt(vect.x * vect.x + vect.y * vect.y);
+				if(length < 5) { // if target is near - stop
+					this.tpos.x = this.pos.x;
+					this.tpos.y = this.pos.y;
+					// reset speed vector
+					this.v = h.V2(0,0);
+					this.action = 'idle';
+				} else { // if target is far - move towards it
+					// normalize vector
+					this.v.x = vect.x / length * this.speed;
+					this.v.y = vect.y / length * this.speed;
+					// update coordinates (move object)
+					this.pos.x += this.v.x * dt;
+					this.pos.y += this.v.y * dt;
+					// object had changed
+					this.status = 2;
+				}
+			}
+		}
 	};
 	return obj;
 };
