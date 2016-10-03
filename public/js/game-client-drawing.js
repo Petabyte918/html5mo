@@ -36,7 +36,7 @@ for(var i = 0; i < imgList.length; i++) {
 
 //---   WINDOW LOADING AND SIZING   ---
 
-window.onload = function() {
+var DrawingInit = function() {
 	// prepare canvas
 	canvas = document.getElementById("mainCanvas");
 	context = canvas.getContext("2d");
