@@ -32,11 +32,13 @@ function updateData(JSONdata) {
 	var newdata = JSON.parse(JSONdata.data);
 	var objn = [];
 	for(var i = 0; i < newdata.length; i++) {
+		var oldObj = objectFindByKey(engine.data.obj, 'id', newdata[i].id);
 		if(newdata[i].status == 1) {
-			var oldobj = objectFindByKey(engine.data.obj, 'id', newdata[i].id);
-			if(oldobj != null) objn.push(oldobj);
+			if(oldObj != null) objn.push(oldObj);
 		} else if(newdata[i].status == 2) {
-			if(newdata[i].data != null) objn.push(newdata[i].data);
+			var newObj = newdata[i].data;
+			if(oldObj && oldObj.drawData) newObj.drawData = oldObj.drawData;
+			if(newdata[i].data != null) objn.push(newObj);
 		}
 	}
 	engine.data.obj = objn;

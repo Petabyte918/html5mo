@@ -62,13 +62,22 @@ function canvasDraw() {
 	context.fillStyle = color_canvas_bg;
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
-	if(engine.data && engine.data.obj) {
+	engine.update();
+	
+	if(engine.data.obj) {
 		for(var i = 0; i < engine.data.obj.length; i++) {
 			var o = engine.data.obj[i];
 			if(o)switch(o.type) {
 			case 'char':
-				var x = o.pos.x+offsetX;
-				var y = o.pos.y+offsetY;
+				var x = offsetX;
+				var y = offsetY;
+				if(o.drawData) {
+					x += o.drawData.pos.x;
+					y += o.drawData.pos.y;
+				} else {
+					x += o.pos.x;
+					y += o.pos.y;
+				}
 				
 				context.drawImage(content[o.img], x-cHObjIconSize, y-cHObjIconSize, cObjIconSize, cObjIconSize);
 				break;

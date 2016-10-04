@@ -24,7 +24,7 @@ var CharObj = function(id, img, x, y, name, sid) {
 	// Session ID
 	obj.sid = sid;
 	// Absolute object speed
-	obj.speed = 0.02;
+	obj.speed = 0.05;
 	// Movement speed vector
 	obj.v = h.V2(0,0);
 	// Order object to move
