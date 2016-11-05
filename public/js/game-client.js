@@ -12,6 +12,8 @@ var engine = {
 		this.dtime = Date.now() - this.lastupdate;
 		this.lastupdate = Date.now();
 		
+		scrollMap(this.dtime);
+		
 		if(this.data.obj) {
 			for( var i = 0; i < this.data.obj.length; i++) {
 				if(this.data.obj[i]) {

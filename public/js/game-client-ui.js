@@ -2,6 +2,10 @@
 
 //--- USER INPUT ---
 
+//--- Variables and constants ---
+
+var cScrollSpeed = 0.1;
+
 //--- Keyboard input ---
 
 var key_left = false;
@@ -39,6 +43,15 @@ function handleKeyUp(event) {
 		key_down = false;
 	else if (event.keyCode == 27)
 		key_esc = false;
+}
+
+function scrollMap(dtime) {
+	var dOffset = Math.round(cScrollSpeed * dtime);
+	
+	if(key_left) offsetX+= dOffset;
+	if(key_right) offsetX-= dOffset;
+	if(key_up) offsetY+= dOffset;
+	if(key_down) offsetY-= dOffset;
 }
 
 //--- Mouse input ---
@@ -107,8 +120,8 @@ function AddUIevents() {
 // On mouse left click we get the coordinates of click and send this data to server
 function MouseLeftClick() {
 	var coord = {
-		x: mouse.pos.x+offsetX,
-		y: mouse.pos.y+offsetY
+		x: mouse.pos.x - offsetX,
+		y: mouse.pos.y - offsetY
 	};
 	// We send ui (user interface) data which contains the more precise type mcl (mouse click left) and the coordinates
 	sendData('ui', {type:'mcl', data:coord});
