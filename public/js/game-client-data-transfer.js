@@ -16,11 +16,17 @@ socket.on('chat', function(data) {
 socket.on('condata', function(JSONdata) {
 	var data = JSONdata.data;
 	objData(JSON.parse(data.objdata));
+	mapData(JSON.parse(data.mapdata));
 });
 
 // read obj data
 function objData(data) {
 	engine.data.obj = data;
+}
+
+// read map data
+function mapData(data) {
+	engine.map = data;
 }
 
 socket.on('updatedata', function(data) {

@@ -9,8 +9,14 @@ var sio = require('socket.io')(http);
 var sesManager;
 var h = require('./custom-modules/helpers.js');
 var om = require('./custom-modules/object-models.js');
+var map = require('./custom-modules/map.js');
 var objManager = om.ObjManager;
 var game;
+
+var constants = {
+	cMapX:20,
+	cMapY:10
+};
 
 //---   MAIN GAME CONTROLLER   ---
 
@@ -33,6 +39,7 @@ var Game = function() {
 	},
 	this.init = function() {
 		objManager.init();
+		this.map = map.Map(constants.cMapX, constants.cMapY);
 	},
 	this.update = function() {
 		if(this.playing) {
@@ -144,6 +151,7 @@ sio.on('connection', function(socket) {
 	socket.emit('condata', {
 		data: {
 			objdata: JSON.stringify(objManager.obj),
+			mapdata: JSON.stringify(game.map.grid),
 		},
 		time: Date.now()
 	});
