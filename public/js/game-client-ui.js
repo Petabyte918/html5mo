@@ -5,6 +5,12 @@
 //--- Variables and constants ---
 
 var cScrollSpeed = 0.1;
+var cursorsDir;
+if(window.innerWidth > 800) {
+	cursorsDir = 'img/cursors32/';
+} else {
+	cursorsDir = 'img/cursors16/';
+}
 
 //--- Keyboard input ---
 
@@ -59,11 +65,23 @@ function scrollMap(dtime) {
 // disable right click options menu over canvas
 $('body').on('contextmenu', '#mainCanvas', function(e){ return false; });
 
+// set default cursor
+$('body').css({'cursor': 'url('+cursorsDir+'2.ico), default'});
+
 // Object to store mouse data
 var mouse = {
 	left: false,
 	right: false,
-	pos: { x: 0, y: 0 }
+	pos: { x: 0, y: 0 },
+	coord: { x: 0, y: 0 },
+	over: [],
+	cursor: 0,
+	setCursor: function (newCur) {
+		if(newCur != this.cursor) {	
+			this.cursor = newCur; 
+			$('#mainCanvas').css({'cursor': 'url('+cursorsDir+newCur+'.ico), default'});
+		}
+	}
 };
 
 // A function that gets the mouse coordinates in canvas (from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/)

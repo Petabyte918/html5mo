@@ -14,9 +14,39 @@ var engine = {
 		
 		scrollMap(this.dtime);
 		
+		mouse.over = [];
+		
 		if(this.data.obj) {
 			for( var i = 0; i < this.data.obj.length; i++) {
-				if(this.data.obj[i]) {
+				if(this.data.obj[i]) {					
+					if(	mouse.pos.x<engine.data.obj[i].pos.x+offsetX+cObjIconSize &&
+						mouse.pos.x>engine.data.obj[i].pos.x+offsetX-cObjIconSize &&
+						mouse.pos.y<engine.data.obj[i].pos.y+offsetY+cObjIconSize && 
+						mouse.pos.y>engine.data.obj[i].pos.y+offsetY-cObjIconSize){
+						mouse.over.push(engine.data.obj[i]);
+					}
+					if(mouse.over.length > 0) {
+						var type = objectFindByKey(this.data.obj, 'id', mouse.over[mouse.over.length-1].id).type;
+						switch(type) {
+							case 'char':
+								mouse.setCursor(2);
+							break;
+							default:
+								mouse.setCursor(0);
+						}
+					} else {
+						mouse.coord = V2(mouse.pos.x-offsetX, mouse.pos.y-offsetY);
+						if(mouse.coord.x > 0 && mouse.coord.x < this.map.bounds.x && 
+							  mouse.coord.y > 0 && mouse.coord.y < this.map.bounds.y) {
+							if(true) { // TODO add checking if tile is walkable
+								mouse.setCursor(1);
+							} else {
+								mouse.setCursor(0);
+							}
+						} else {
+							mouse.setCursor(0);
+						}
+					}
 					switch(this.data.obj[i].type) {
 						case 'char':
 							var ch = this.data.obj[i];
@@ -68,11 +98,16 @@ var engine = {
 							} else {
 								ch.drawData = {pos: ch.pos, v: ch.v};
 							}
-							break;
+						break;
 					}
 				}
 			}
 		}
+	},
+	tileByPos: function(position) {
+		return Object.assign(
+			this.map[Math.floor(position.y/cTileWidth)][Math.floor(position.x/cTileWidth)],{}
+		);
 	}
 };
 

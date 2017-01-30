@@ -27,6 +27,7 @@ function objData(data) {
 // read map data
 function mapData(data) {
 	engine.map = data;
+	engine.map.bounds = V2(engine.map[0].length*cTileWidth,engine.map.length*cTileWidth); 
 }
 
 socket.on('updatedata', function(data) {
