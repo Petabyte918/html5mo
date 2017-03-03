@@ -1,6 +1,7 @@
 "use strict"
 
 var h = require('./helpers.js');
+var PF = require('pathfinding');
 
 //---  MAP CONSTRUCTOR  ---
 
@@ -10,11 +11,19 @@ function _Map(x,y) {
 		tileW : 64,
 		cWalkablePercentage : 85,
 		cWaterPercentage: 30 //(% of unwalkable)
+	},
+	this.pf = { 
+		pfMatrix : [],
+		pfGrid : {},
+		pfFinder : new PF.BestFirstFinder({
+			allowDiagonal: true,
+			dontCrossCorners: true
+		})
 	}
 	var nextTile = 0;
 	for(var j = 0; j < y; j++) {
 		this.grid.push([]);
-		//pf.pfMatrix.push([]);
+		this.pf.pfMatrix.push([]);
 		for (var i = 0; i < x; i++) {
 			// is tile walkable?
 			// 0- not; 1- water; 2- ground;
@@ -29,13 +38,13 @@ function _Map(x,y) {
 				walkable = 0;
 				img = 'tiles/cobblestone-regular.jpg';
 			}
-			this.grid[j].push(new Tile(nextTile, i, j, this.settings.tileW, img));
-			//walkable = (walkable == 0) ? 1 : 0;
-			//pf.pfMatrix[j].push(walkable);
+			this.grid[j].push(new Tile(nextTile, i, j, this.settings.tileW, walkable, img));
+			walkable = (walkable > 1) ? 0 : 1; // 0-walkable
+			this.pf.pfMatrix[j].push(walkable);
 			nextTile++;
 		}
 	}
-	//pf.pfGrid = new PF.Grid(pf.pfMatrix);
+	this.pf.pfGrid = new PF.Grid(this.pf.pfMatrix);
 	// get the tile at position
 	this.tileByPos = function(position) {
 		return Object.assign( //copy the object so that someone don't accidentally edit the tile
@@ -47,10 +56,11 @@ function _Map(x,y) {
 
 //--- TILE ---
 
-function Tile(id, i, j, width, img) {
+function Tile(id, i, j, width, walkable, img) {
 	this.id = id;
 	this.ind = h.V2(i, j);
 	this.pos = h.V2(i*width, j*width);
+	this.walkable = walkable;
 	this.img = img; 
 	return this;
 }

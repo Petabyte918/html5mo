@@ -152,6 +152,7 @@ sio.on('connection', function(socket) {
 		data: {
 			objdata: JSON.stringify(objManager.obj),
 			mapdata: JSON.stringify(game.map.grid),
+			pfmatrix: JSON.stringify(game.map.pf.pfMatrix)
 		},
 		time: Date.now()
 	});
