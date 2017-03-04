@@ -9,6 +9,7 @@ var engine = {
 		obj:{}
 	},
 	update: function() {
+		log_clear();
 		this.dtime = Date.now() - this.lastupdate;
 		this.lastupdate = Date.now();
 		
@@ -136,3 +137,11 @@ var V2 = function(x,y) {
 	DrawingInit();
 	AddUIevents();
  });
+
+var log = function(msg) {
+	$('#debug-window').append($('<p>').text(msg));
+}
+
+var log_clear = function(msg) {
+	$('#debug-window').empty();
+}

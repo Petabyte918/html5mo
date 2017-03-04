@@ -56,3 +56,12 @@ form button {
 	background: #fff;
 }
 
+#debug-window {
+	position: fixed;
+	top:0;
+	left:0;
+	width: 200px;
+	color: white;
+	background-color: rgba(0,0,0,0.4);
+}
+
