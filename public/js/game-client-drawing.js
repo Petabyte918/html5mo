@@ -31,7 +31,7 @@ var offsetY = 0;
 //---   CONTENT   ---
 
 // load all the content required
-var imgList = ['char.png', 'tiles/grass-sparse.jpg', 'tiles/water-plain.jpg', 'tiles/cobblestone-regular.jpg'];
+var imgList = ['char.png', 'flag.png', 'tiles/grass-sparse.jpg', 'tiles/water-plain.jpg', 'tiles/cobblestone-regular.jpg'];
 for(var i = 0; i < imgList.length; i++) {
 	content[imgList[i]] = new Image();
 	content[imgList[i]].src = 'img/'+imgList[i];
@@ -67,7 +67,7 @@ function canvasDraw() {
 	
 	engine.update();
 	
-	if(engine.map){
+	if(engine.map) {
 		// calculate minimum and maximum indexes of visible tiles 
 		var imin, imax, jmin, jmax;
 		
@@ -95,22 +95,30 @@ function canvasDraw() {
 	if(engine.data.obj) {
 		for(var i = 0; i < engine.data.obj.length; i++) {
 			var o = engine.data.obj[i];
-			if(o)switch(o.type) {
-			case 'char':
-				var x = offsetX;
-				var y = offsetY;
-				if(o.drawData) {
-					x += o.drawData.pos.x;
-					y += o.drawData.pos.y;
-				} else {
-					x += o.pos.x;
-					y += o.pos.y;
-				}
-				
-				context.drawImage(content[o.img], x-cHObjIconSize, y-cHObjIconSize, cObjIconSize, cObjIconSize);
+			if(o) {
+				switch(o.type) {
+				case 'char':
+					var x = offsetX;
+					var y = offsetY;
+					if(o.action == 'move' || o.action == 'follow'){
+						if(o.path.length>1) {
+							for(var j = 0;j<o.path.length;j++) { context.drawImage(content['flag.png'], o.path[j][0]*64+32+offsetX-10, o.path[j][1]*64+32+offsetY-20, 20,20); }
+						} else {
+							context.drawImage(content['flag.png'], o.tx+offsetX-10, o.ty+offsetY-20, 20,20);
+						}
+					}
+					if(o.drawData) {
+						x += o.drawData.pos.x;
+						y += o.drawData.pos.y;
+					} else {
+						x += o.pos.x;
+						y += o.pos.y;
+					}
+					context.drawImage(content[o.img], x-cHObjIconSize, y-cHObjIconSize, cObjIconSize, cObjIconSize);
 				break;
-			default:
-				console.log('data object type error! '+o.type);
+				default:
+					console.log('data object type error! '+o.type);
+				} 
 			} else {
 				console.log('data object error: object undefined!');
 				console.log(engine.data.obj);

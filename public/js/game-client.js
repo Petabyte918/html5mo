@@ -38,7 +38,7 @@ var engine = {
 						mouse.coord = V2(mouse.pos.x-offsetX, mouse.pos.y-offsetY);
 						if(mouse.coord.x > 0 && mouse.coord.x < this.map.bounds.x && 
 							  mouse.coord.y > 0 && mouse.coord.y < this.map.bounds.y) {
-							if(true) { // TODO add checking if tile is walkable
+							if(this.tileByPos(mouse.coord).walkable == 2) {
 								mouse.setCursor(1);
 							} else {
 								mouse.setCursor(0);
@@ -50,13 +50,18 @@ var engine = {
 					switch(this.data.obj[i].type) {
 						case 'char':
 							var ch = this.data.obj[i];
-							var ddlength, lenght;
-							if(ch.tpos.y != ch.pos.y || ch.tpos.x != ch.pos.x) {
-								var vect = V2( ch.tpos.x - ch.pos.x, ch.tpos.y - ch.pos.y);
+							var tmppos;
+							if(ch.path.length>1)
+								tmppos = ch.ppos;
+							else
+								tmppos = ch.tpos;
+							var ddlength, length;
+							if(tmppos.y != ch.pos.y || tmppos.x != ch.pos.x) {
+								var vect = V2( tmppos.x - ch.pos.x, tmppos.y - ch.pos.y);
 								length = Math.sqrt(vect.x * vect.x + vect.y * vect.y);
 								if(length < 2) {
-									ch.pos.x = ch.tpos.x;
-									ch.pos.y = ch.tpos.y;
+									ch.pos.x = tmppos.x;
+									ch.pos.y = tmppos.y;
 									ch.v.x = 0;
 									ch.v.y = 0;
 								} else {
@@ -71,16 +76,15 @@ var engine = {
 							// Here we create data specifically for drawing. It smooths out movement but is less accurate.
 							//We will mirror the same movement but from drawing position instead of real position
 							if(ch.drawData){
-								if(ch.tpos.y != ch.drawData.pos.y || ch.tpos.x != ch.drawData.pos.x) {
-									var vect = V2( ch.tpos.x - ch.drawData.pos.x, ch.tpos.y - ch.drawData.pos.y);
+								if(tmppos.y != ch.drawData.pos.y || tmppos.x != ch.drawData.pos.x) {
+									var vect = V2( tmppos.x - ch.drawData.pos.x, tmppos.y - ch.drawData.pos.y);
 									ddlength = Math.sqrt(vect.x * vect.x + vect.y * vect.y);
 									if(Math.abs(ddlength - length) > 30) {
 										// if position difference is very big (may be cause by lag or smth) we reset draw position to real position
 										ch.drawData.pos = ch.pos;
 									} else {
 										if(ddlength < 1) {
-											ch.drawData.pos.x = ch.tpos.x;
-											ch.drawData.pos.y = ch.tpos.y;
+											ch.drawData.pos = tmppos;
 											ch.drawData.v.x = 0;
 											ch.drawData.v.y = 0;
 											ch.status = 'idle';
