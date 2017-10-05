@@ -196,6 +196,12 @@ function escapeKey() {
 
 // Placeholder for actions to happen on M key press
 function mKey() {
+	if (engine.miniMapEnabled)
+		engine.miniMapEnabled = false;
+	else if(engine.miniMap)
+		if(engine.miniMap.base) {
+			engine.miniMapEnabled = true;
+		}
 }
 
 //--- USER PANELS ---

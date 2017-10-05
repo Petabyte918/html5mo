@@ -28,6 +28,7 @@ function objData(data) {
 function mapData(data) {
 	engine.map = data;
 	engine.map.bounds = V2(engine.map[0].length*cTileWidth,engine.map.length*cTileWidth); 
+	engine.miniMapEnabled = false;
 }
 
 socket.on('updatedata', function(data) {

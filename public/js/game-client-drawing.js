@@ -66,6 +66,14 @@ function canvasDraw() {
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
 	engine.update();
+
+	if(engine.miniMapEnabled) {
+		engine.miniMap.current = copyImageData(engine.miniMap.base, context);
+	} else {
+		if(engine.map) {
+			engine.miniMap = miniMap(engine.map, context);
+		}
+	}
 	
 	if(engine.map) {
 		// calculate minimum and maximum indexes of visible tiles 
@@ -115,7 +123,12 @@ function canvasDraw() {
 						y += o.pos.y;
 					}
 					context.drawImage(content[o.img], x-cHObjIconSize, y-cHObjIconSize, cObjIconSize, cObjIconSize);
-				break;
+					if(engine.miniMapEnabled) {
+						var ox = Math.round((o.pos.x)/cTileWidth*engine.miniMap.scale),
+							oy = Math.round((o.pos.y)/cTileWidth*engine.miniMap.scale);
+						drawPoint(engine.miniMap.current, ox, oy, 255, 128, 36, 255, 4);
+					}
+					break;
 				default:
 					console.log('data object type error! '+o.type);
 				} 
@@ -126,10 +139,96 @@ function canvasDraw() {
 			}
 		}
 	}
+
+	if(engine.miniMapEnabled) {
+		context.putImageData(engine.miniMap.current,10,10);
+	}
 }
 
 // loop request your animation function to be called before the browser performs the next repaint
 function animate() {
 	reqAnimFrame(animate);
 	canvasDraw();
+}
+
+// create minimap / hud
+function miniMap(data, ctx) {
+	var scale = 10;
+	var imageData = ctx.createImageData(data[0].length*scale,data.length*scale)
+	for(var i = 0; i < data.length; i++) {
+		for(var j = 0; j < data[i].length; j++) {
+			for(var k = 0; k < scale; k++) {
+				for(var l = 0; l < scale; l++) {
+					if (data[i][j].walkable==1) {
+						setPixel(imageData, j*scale+k, i*scale+l, 150, 150, 255, 255);
+					} else if (data[i][j].walkable==2) {
+						setPixel(imageData, j*scale+k, i*scale+l, 100, 225, 100, 255);
+					} else {
+						setPixel(imageData, j*scale+k, i*scale+l, 150, 100, 100, 255);
+
+					}
+				}
+			}
+		}	
+	}
+	return {
+		base: imageData,
+		current: imageData,
+		scale: scale
+	}
+}
+
+function setPixel(imageData, x, y, r, g, b, a) {
+    var index = (x + y * imageData.width) * 4;
+    imageData.data[index+0] = r;
+    imageData.data[index+1] = g;
+    imageData.data[index+2] = b;
+    imageData.data[index+3] = a;
+}
+
+function copyImageData(src, ctx)
+{
+    var dst = ctx.createImageData(src.width, src.height);
+    dst.data.set(src.data);
+    return dst;
+}
+
+function drawPoint(imageData, x, y, r, g, b, a, radius) {
+	setPixel(imageData, x, y, r, g, b, a);
+	if (radius>1){
+		setPixel(imageData, x+1, y  , r, g, b, a);
+		setPixel(imageData, x-1, y  , r, g, b, a);
+		setPixel(imageData, x,   y+1, r, g, b, a);
+		setPixel(imageData, x,   y-1, r, g, b, a);
+		if (radius>2){
+			setPixel(imageData, x+1, y+1, r, g, b, a);
+			setPixel(imageData, x-1, y  , r, g, b, a);
+			setPixel(imageData, x-1, y-1, r, g, b, a);
+			setPixel(imageData, x,   y-1, r, g, b, a);
+			setPixel(imageData, x-1, y+1, r, g, b, a);
+			setPixel(imageData, x+1, y-1, r, g, b, a);
+			if (radius>3){
+				setPixel(imageData, x-2, y,   r, g, b, a);
+				setPixel(imageData, x+2, y,   r, g, b, a);
+				setPixel(imageData, x,   y-2, r, g, b, a);
+				setPixel(imageData, x,   y+2, r, g, b, a);
+			}
+		}
+	}	
+}
+
+function drawSquare(imageData, x, y, r, g, b, a, radius) {
+	setPixel(imageData, x, y, r, g, b, a);
+	if (radius>1){
+		setPixel(imageData, x+1, y  , r, g, b, a);
+		setPixel(imageData, x+1, y+1, r, g, b, a);
+		setPixel(imageData, x,   y+1, r, g, b, a);
+		if (radius>2){
+			setPixel(imageData, x-1, y  , r, g, b, a);
+			setPixel(imageData, x-1, y-1, r, g, b, a);
+			setPixel(imageData, x,   y-1, r, g, b, a);
+			setPixel(imageData, x-1, y+1, r, g, b, a);
+			setPixel(imageData, x+1, y-1, r, g, b, a);
+		}
+	}	
 }
