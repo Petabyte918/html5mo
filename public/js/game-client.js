@@ -9,7 +9,7 @@ var engine = {
 		obj:{}
 	},
 	update: function() {
-		log_clear();
+		LogClear();
 		this.dtime = Date.now() - this.lastupdate;
 		this.lastupdate = Date.now();
 		
@@ -39,7 +39,7 @@ var engine = {
 						mouse.coord = V2(mouse.pos.x-offsetX, mouse.pos.y-offsetY);
 						if(mouse.coord.x > 0 && mouse.coord.x < this.map.bounds.x && 
 							  mouse.coord.y > 0 && mouse.coord.y < this.map.bounds.y) {
-							if(this.tileByPos(mouse.coord).walkable == 2) {
+							if(this.tileByPos(mouse.coord).walkable == 2) { // TODO add checking if tile is walkable
 								mouse.setCursor(1);
 							} else {
 								mouse.setCursor(0);
@@ -138,10 +138,11 @@ var V2 = function(x,y) {
 	AddUIevents();
  });
 
-var log = function(msg) {
-	$('#debug-window').append($('<p>').text(msg));
+var Log = function(msg) {
+	$('#debug-window').prepend($('<p>').text(msg));
 }
 
-var log_clear = function(msg) {
-	$('#debug-window').empty();
+var LogClear = function(msg) {
+  	if ($("#debug-window p").length>20)
+  		$('#debug-window p').last().remove();
 }

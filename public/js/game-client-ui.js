@@ -14,50 +14,89 @@ if(window.innerWidth > 800) {
 
 //--- Keyboard input ---
 
-var key_left = false;
-var key_right = false;
-var key_up = false;
-var key_down = false;
-var key_esc = false;
+var kbKey = { 
+	esc : false,
+	left : false,
+	right : false,
+	up : false,
+	down : false,
+	c : false,
+	i : false,
+	m : false
+};
 
 function handleKeyDown(event) {
-	if (event.keyCode == 37) 
-		key_left = true;
-	else if (event.keyCode == 39)
-		key_right = true;
-	else if (event.keyCode == 38)
-		key_up = true;
-	else if (event.keyCode == 40)
-		key_down = true;
-	else if (event.keyCode == 27){
+	switch(event.keyCode) {
+	case 27:
 		// run function once per key press (if key was already pressed, do nothing)
-		if(key_esc == false) {
+		if(kbKey.esc == false) {
 			escapeKey();
-			key_esc = true;
+			kbKey.esc = true;
+		}		
+		break;
+	case 37:
+		kbKey.left = true;
+		break;
+	case 38:
+		kbKey.up = true;
+		break;
+	case 39:
+		kbKey.right = true;
+		break;
+	case 40:
+		kbKey.down = true;
+		break;
+	case 67:
+		kbKey.c = true;
+		break;
+	case 73:
+		kbKey.i = true;
+		break;
+	case 77:	
+		if(kbKey.m == false) {
+			mKey();
+			kbKey.m = true;
 		}
+		break;
 	}
 }
 
 function handleKeyUp(event) {
-	if (event.keyCode == 37) 
-		key_left = false;
-	else if (event.keyCode == 39)
-		key_right = false;
-	else if (event.keyCode == 38)
-		key_up = false;
-	else if (event.keyCode == 40)
-		key_down = false;
-	else if (event.keyCode == 27)
-		key_esc = false;
+	switch(event.keyCode) {
+	case 27:
+		kbKey.esc = false;
+		break;
+	case 37:
+		kbKey.left = false;
+		break;
+	case 38:
+		kbKey.up = false;
+		break;
+	case 39:
+		kbKey.right = false;
+		break;
+	case 40:
+		kbKey.down = false;
+		break;
+	case 67:
+		kbKey.c = false;
+		break;
+	case 73:
+		kbKey.i = false;
+		break;
+	case 77:
+		kbKey.m = false;
+		break;
+	}
 }
 
 function scrollMap(dtime) {
 	var dOffset = Math.round(cScrollSpeed * dtime);
 	
-	if(key_left) offsetX+= dOffset;
-	if(key_right) offsetX-= dOffset;
-	if(key_up) offsetY+= dOffset;
-	if(key_down) offsetY-= dOffset;
+	if(kbKey.left) offsetX+= dOffset;
+	if(kbKey.right) offsetX-= dOffset;
+	if(kbKey.up) offsetY+= dOffset;
+	if(kbKey.down) offsetY-= dOffset;
 }
 
 //--- Mouse input ---
@@ -153,6 +192,10 @@ function MouseRightClick() {
 
 // Placeholder for actions to happen on Escape key press
 function escapeKey() {
+}
+
+// Placeholder for actions to happen on M key press
+function mKey() {
 }
 
 //--- USER PANELS ---

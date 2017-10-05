@@ -38,8 +38,8 @@ var Game = function() {
 		console.log('game stopped!'); 
 	},
 	this.init = function() {
-		objManager.init();
 		this.map = map.Map(constants.cMapX, constants.cMapY);
+		objManager.init(this.map);
 	},
 	this.update = function() {
 		if(this.playing) {

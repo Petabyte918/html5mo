@@ -99,9 +99,9 @@ var CharObj = function(id, img, x, y, name, sid) {
 					} else if(length < 5) {//this.v*2*dt) {
 						if(this.path.length>1) {
 							this.path.splice(0,1);
-							this.ppos = h.V2(map.grid[this.path[0][1]][this.path[0][0]].pos.x,map.grid[this.path[0][1]][this.path[0][0]].pos.y);
-							this.ppos.x += map.settings.tileW/2;
-							this.ppos.y += map.settings.tileW/2;
+							this.ppos = map.grid[this.path[0][1]][this.path[0][0]].pos,{};
+							//this.ppos.x += map.settings.tileW/2;
+							//this.ppos.y += map.settings.tileW/2;
 						} else {
 							this.pos = tmppos;
 
