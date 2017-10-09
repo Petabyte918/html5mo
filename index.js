@@ -14,8 +14,9 @@ var objManager = om.ObjManager;
 var game;
 
 var constants = {
-	cMapX:20,
-	cMapY:10
+	cMapX: 20,
+	cMapY: 10,
+	startingMap: './resources/maps/starter_map.data' 
 };
 
 //---   MAIN GAME CONTROLLER   ---
@@ -38,7 +39,8 @@ var Game = function() {
 		console.log('game stopped!'); 
 	},
 	this.init = function() {
-		this.map = map.Map(constants.cMapX, constants.cMapY);
+		//this.map = map.Map(constants.cMapX, constants.cMapY);
+		this.map = map.LoadMap(constants.startingMap);
 		objManager.init(this.map);
 	},
 	this.update = function() {

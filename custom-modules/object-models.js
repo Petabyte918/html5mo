@@ -133,8 +133,15 @@ var CharObj = function(id, img, x, y, name, sid) {
 var _ObjManager = {
 	obj: [],
 	nextid: 0,
-	addObj: function(icon, x, y, name, sid) {
-		this.obj.push(new CharObj(this.nextid, icon, x+this.nextid*50, y, name, sid));
+	spawnMapI: [0,-1,0,1,1,1,0,-1,-1],
+	spawnMapJ: [0,-1,-1,-1,0,1,1,1,0],
+	addUser: function(icon, x, y, name, alliance, sid) {
+		map.settings.nextSpawn++;
+		if(map.settings.nextSpawn>8) map.settings.nextSpawn = 1;
+		var si, sj;
+		si = (map.settings.spawnI+this.spawnMapI[map.settings.nextSpawn])*map.settings.tileW + map.settings.tileW/2;
+		sj = (map.settings.spawnJ+this.spawnMapJ[map.settings.nextSpawn])*map.settings.tileW + map.settings.tileW/2;
+		this.obj.push(new CharObj(this.nextid, icon, si, sj, name, alliance, sid));
 		this.nextid++;
 		return this.nextid-1;
 	},

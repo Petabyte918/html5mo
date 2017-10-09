@@ -2,17 +2,19 @@
 
 var h = require('./helpers.js');
 var PF = require('pathfinding');
+var fs = require('fs');
 
 //---  MAP CONSTRUCTOR  ---
 
-function _Map(x,y) {
-	this.grid = [];
-	this.settings = {
+function InitMap(_this) {
+	_this.grid = [];
+	_this.settings = {
 		tileW : 64,
-		cWalkablePercentage : 85,
-		cWaterPercentage: 30 //(% of unwalkable)
-	},
-	this.pf = { 
+		spawnI: 1,
+		spawnJ: 1,
+		nextSpawn: 1
+	}
+	_this.pf = { 
 		pfMatrix : [],
 		pfGrid : {},
 		pfFinder : new PF.BestFirstFinder({
@@ -20,37 +22,61 @@ function _Map(x,y) {
 			dontCrossCorners: true
 		})
 	}
+}
+
+function FinalizeMap(_this) {
+	_this.pf.pfGrid = new PF.Grid(_this.pf.pfMatrix);
+	// get the tile at position
+	_this.tileByPos = function(position) {
+		return Object.assign( //copy the object so that someone don't accidentally edit the tile
+			_this.grid[Math.floor(position.y/_this.settings.tileW)][Math.floor(position.x/_this.settings.tileW)],{}
+		);
+	}
+}
+
+function _Map(x,y) {
+	// Init base
+	InitMap(this);
+
+	// Generate data
 	var nextTile = 0;
 	for(var j = 0; j < y; j++) {
 		this.grid.push([]);
 		this.pf.pfMatrix.push([]);
 		for (var i = 0; i < x; i++) {
-			// is tile walkable?
-			// 0- not; 1- water; 2- ground;
-			var walkable, img;
-			if(Math.random()*100 < this.settings.cWalkablePercentage) {
-				walkable = 2;
-				img = 'tiles/grass-sparse.jpg';
-			} else if(Math.random()*100 < this.settings.cWaterPercentage){ // if it is unwalkable, check whether it should be water or wall
-				walkable = 1;
-				img = 'tiles/water-plain.jpg';
-			} else {
-				walkable = 0;
-				img = 'tiles/cobblestone-regular.jpg';
-			}
-			this.grid[j].push(new Tile(nextTile, i, j, this.settings.tileW, walkable, img));
-			walkable = (walkable > 1) ? 0 : 1; // 0-walkable
-			this.pf.pfMatrix[j].push(walkable);
+			this.grid[j].push(new Tile(nextTile, i, j, this.settings.tileW, 2, 'tiles/grass-sparse.jpg'));
+			this.pf.pfMatrix[j].push(0);
 			nextTile++;
 		}
 	}
-	this.pf.pfGrid = new PF.Grid(this.pf.pfMatrix);
-	// get the tile at position
-	this.tileByPos = function(position) {
-		return Object.assign( //copy the object so that someone don't accidentally edit the tile
-			this.grid[Math.floor(position.y/this.settings.tileW)][Math.floor(position.x/this.settings.tileW)],{}
-		);
+	// Finalize
+	FinalizeMap(this);
+	return this;
+}
+
+//---  MAP LOADER  ---
+
+function _LoadMap(fileName) {
+	// Read data
+	var obj, data;
+	var data = JSON.parse(fs.readFileSync(fileName, 'utf8'));
+	// Init base
+	InitMap(this);
+	this.settings.spawnI = data.spawnI;
+	this.settings.spawnJ = data.spawnJ;
+	// Generate data
+	for(var j = 0; j < data.y; j++) {
+		this.grid.push([]);
+		this.pf.pfMatrix.push([]);
+		for (var i = 0; i < data.x; i++) {
+			this.grid[j].push(
+				new Tile(data.tileData[j][i].id, i, j, this.settings.tileW, data.tileData[j][i].walkable, data.textureList[data.tileData[j][i].img])
+			);
+			this.pf.pfMatrix[j].push((data.tileData[j][i].walkable > 1) ? 0 : 1); // 0-walkable
+		}
 	}
+	// Finalize
+	FinalizeMap(this);
 	return this;
 }
 
@@ -68,5 +94,6 @@ function Tile(id, i, j, width, walkable, img) {
 //---  EXPORTS   ---
 
 module.exports = {
+	LoadMap: _LoadMap,
 	Map: _Map
 };
