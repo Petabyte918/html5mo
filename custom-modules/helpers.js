@@ -26,5 +26,9 @@ module.exports = {
 			}
 		}
 		return null;
+	},
+
+	replaceAll : function(str, search, replacement) {
+		return str.replace(new RegExp(search, 'g'), replacement);
 	}
 };

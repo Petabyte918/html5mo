@@ -64,6 +64,7 @@ function _LoadMap(fileName) {
 	InitMap(this);
 	this.settings.spawnI = data.spawnI;
 	this.settings.spawnJ = data.spawnJ;
+	this.mobSpawnList = data.mobSpawnList;
 	// Generate data
 	for(var j = 0; j < data.y; j++) {
 		this.grid.push([]);

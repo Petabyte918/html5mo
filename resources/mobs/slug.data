@@ -1,0 +1,9 @@
+{
+	"typeID": 1,
+	"name": "Slug",
+	"alliance": 2,
+	"img": "m_1.png",
+	"speed": 0.02,
+	"agro": false,
+	"respawn": 60
+}

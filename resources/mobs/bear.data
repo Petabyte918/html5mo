@@ -1,0 +1,9 @@
+{
+	"typeID": 4,
+	"name": "Bear",
+	"alliance": 2,
+	"img": "m_4.png",
+	"speed": 0.03,
+	"agro": false,
+	"respawn": 60
+}

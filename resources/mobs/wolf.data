@@ -1,0 +1,9 @@
+{
+	"typeID": 3,
+	"name": "Wolf",
+	"alliance": 2,
+	"img": "m_3.png",
+	"speed": 0.05,
+	"agro": true,
+	"respawn": 60
+}

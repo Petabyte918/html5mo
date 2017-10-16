@@ -2,39 +2,36 @@
 
 var h = require('./helpers.js');
 var PF = require('pathfinding');
-var map;
+var fs = require('fs');
+var map,
+	mobList;
 
 //---  OBJECT MODELS   ---
 
 // BaseObj - the base object that all the other game objects derives from
-var BaseObj = function(id, img, x, y, type, name) {
+var BaseObj = function(id, img, x, y, type, alliance, name) {
 	this.id = id;
 	this.img = img;
 	this.pos = new h.V2(x,y);
 	this.type = type;
 	this.name = name;
+	this.alliance = alliance;
 	this.status = 2; //0- removed, 1-same, 2-changed
 	return this;
 };
 
-// Character object - the object that will live and move in game
-var CharObj = function(id, img, x, y, name, sid) {
-	var obj = new BaseObj(id, img, x, y, 'char', name);
-	obj.tpos = obj.pos;
+var baseCharFunctionality = function(obj) {
 	obj.targetID;
 	obj.action = 'idle';
-	// Session ID
-	obj.sid = sid;
-	// Absolute object speed
-	obj.speed = 0.05;
 	// Movement speed vector
 	obj.path = [];
 	obj.v = h.V2(0,0);
+	obj.tpos = obj.pos;
 	obj.curTile = function() {
 		this.tile = h.V2(Math.floor(this.pos.y/map.settings.tileW),Math.floor(this.pos.x/map.settings.tileW));
 	}
 	obj.curTile();
-	// Order object to move
+		// Order object to move
 	obj.moveTo = function(targetVector) {
 		var ttile = map.tileByPos(targetVector);
 		if(ttile) {
@@ -124,6 +121,30 @@ var CharObj = function(id, img, x, y, name, sid) {
 			}
 		}
 	};
+}
+
+// Character object - the object that will live and move in game
+var CharObj = function(id, img, x, y, name, alliance, sid) {
+	var obj = new BaseObj(id, img, x, y, 'char', alliance, name);
+	// Session ID
+	obj.sid = sid;
+	// Absolute object speed
+	obj.speed = 0.05;
+	baseCharFunctionality(obj);
+	obj.decide = function() {
+	};
+	return obj;
+};
+
+// Mob object - non user controlled object that will be fought by users
+var MobObj = function(id, typeID, x, y) {
+	var mob = mobList.filter(function(o){return o.typeID == typeID})[0];
+	var obj = new BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
+	// Absolute object speed
+	obj.speed = mob.speed;
+	baseCharFunctionality(obj);
+	obj.decide = function() {
+	};
 	return obj;
 };
 
@@ -145,6 +166,11 @@ var _ObjManager = {
 		this.nextid++;
 		return this.nextid-1;
 	},
+	addMob: function(typeID, x, y) {
+		this.obj.push(new MobObj(this.nextid, typeID, x, y));
+		this.nextid++;
+		return this.nextid-1;
+	},
 	removeObj: function(id) {
 		this.obj.splice(h.indexFindByKey(this.obj, 'id', id),1);
 	},
@@ -154,10 +180,27 @@ var _ObjManager = {
 	},
 	init: function(mapRef) {
 		map = mapRef;
+		fs.readdir('./resources/mobs', function(err, files) {
+			console.log('Reading mob list: ' + (h.replaceAll(files.join(),'.data', '')));
+			mobList = Array();
+			for (var i=0; i<files.length; i++) {			
+				mobList.push(JSON.parse(fs.readFileSync('./resources/mobs/' + files[i], 'utf8')));
+			}
+		});
 	},
 	update: function(dt) {
 		for(var i = 0; i < this.obj.length; i++) {
 			if(this.obj[i]) this.obj[i].update(dt);
+		}
+		if(mobList)for(var i = 0; i < map.mobSpawnList.length; i++) {
+			if(!map.mobSpawnList[i].spawned) {
+				this.addMob(
+					map.mobSpawnList[i].id,
+					map.mobSpawnList[i].x * map.settings.tileW + map.settings.tileW/2,
+					map.mobSpawnList[i].y * map.settings.tileW + map.settings.tileW/2)
+				console.log('Spawn '+  mobList.filter(function(o){return o.typeID == map.mobSpawnList[i].id})[0].name);
+				map.mobSpawnList[i].spawned = 1;
+			}
 		}
 	}
 };

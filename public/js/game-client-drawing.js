@@ -31,7 +31,7 @@ var offsetY = 0;
 //---   CONTENT   ---
 
 // load all the content required
-var imgList = ['char.png', 'flag.png', 'tiles/grass-sparse.jpg', 'tiles/water-plain.jpg', 'tiles/cobblestone-regular.jpg'];
+var imgList = ['char.png', 'm_1.png', 'm_2.png', 'm_3.png', 'm_4.png', 'flag.png', 'tiles/grass-sparse.jpg', 'tiles/water-plain.jpg', 'tiles/cobblestone-regular.jpg'];
 for(var i = 0; i < imgList.length; i++) {
 	content[imgList[i]] = new Image();
 	content[imgList[i]].src = 'img/'+imgList[i];
@@ -106,13 +106,16 @@ function canvasDraw() {
 			if(o) {
 				switch(o.type) {
 				case 'char':
+				case 'mob':
 					var x = offsetX;
 					var y = offsetY;
-					if(o.action == 'move' || o.action == 'follow'){
-						if(o.path.length>1) {
-							for(var j = 0;j<o.path.length;j++) { context.drawImage(content['flag.png'], o.path[j][0]*64+32+offsetX-10, o.path[j][1]*64+32+offsetY-20, 20,20); }
-						} else {
-							context.drawImage(content['flag.png'], o.tx+offsetX-10, o.ty+offsetY-20, 20,20);
+					if (o.type = 'char') {
+						if(o.action == 'move' || o.action == 'follow'){
+							if(o.path.length>1) {
+								for(var j = 0;j<o.path.length;j++) { context.drawImage(content['flag.png'], o.path[j][0]*64+32+offsetX-10, o.path[j][1]*64+32+offsetY-20, 20,20); }
+							} else {
+								context.drawImage(content['flag.png'], o.tx+offsetX-10, o.ty+offsetY-20, 20,20);
+							}
 						}
 					}
 					if(o.drawData) {

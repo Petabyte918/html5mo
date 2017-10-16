@@ -1,0 +1,9 @@
+{
+	"typeID": 2,
+	"name": "Racoon",
+	"alliance": 2,
+	"img": "m_2.png",
+	"speed": 0.06,
+	"agro": false,
+	"respawn": 60
+}

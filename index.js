@@ -76,8 +76,8 @@ sesManager = {
 	nextSes:0,
 	addSession: function (socket, om) {
 		var newname = "User"+this.nextSes;
-		var sid= this.stripSID(socket.id);
-		var id = om.addObj('char.png', 100, 100, newname, sid);
+		var sid = this.stripSID(socket.id);
+		var id = om.addUser('char.png', 100, 100, newname, 1, sid);
 		console.log(newname+' connected');
 		this.sessions[sid] = {
 			name: newname,

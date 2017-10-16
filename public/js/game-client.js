@@ -32,6 +32,9 @@ var engine = {
 							case 'char':
 								mouse.setCursor(2);
 							break;
+							case 'mob':
+								mouse.setCursor(3);
+							break;
 							default:
 								mouse.setCursor(0);
 						}
