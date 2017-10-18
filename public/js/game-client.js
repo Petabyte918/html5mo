@@ -12,17 +12,17 @@ var engine = {
 		LogClear();
 		this.dtime = Date.now() - this.lastupdate;
 		this.lastupdate = Date.now();
-		
+
 		scrollMap(this.dtime);
-		
+
 		mouse.over = [];
-		
+
 		if(this.data.obj) {
 			for( var i = 0; i < this.data.obj.length; i++) {
-				if(this.data.obj[i]) {					
+				if(this.data.obj[i]) {
 					if(	mouse.pos.x<engine.data.obj[i].pos.x+offsetX+cObjIconSize &&
 						mouse.pos.x>engine.data.obj[i].pos.x+offsetX-cObjIconSize &&
-						mouse.pos.y<engine.data.obj[i].pos.y+offsetY+cObjIconSize && 
+						mouse.pos.y<engine.data.obj[i].pos.y+offsetY+cObjIconSize &&
 						mouse.pos.y>engine.data.obj[i].pos.y+offsetY-cObjIconSize){
 						mouse.over.push(engine.data.obj[i]);
 					}
@@ -40,7 +40,7 @@ var engine = {
 						}
 					} else {
 						mouse.coord = V2(mouse.pos.x-offsetX, mouse.pos.y-offsetY);
-						if(mouse.coord.x > 0 && mouse.coord.x < this.map.bounds.x && 
+						if(mouse.coord.x > 0 && mouse.coord.x < this.map.bounds.x &&
 							  mouse.coord.y > 0 && mouse.coord.y < this.map.bounds.y) {
 							if(this.tileByPos(mouse.coord).walkable == 2) { // TODO add checking if tile is walkable
 								mouse.setCursor(1);

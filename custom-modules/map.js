@@ -14,7 +14,7 @@ function InitMap(_this) {
 		spawnJ: 1,
 		nextSpawn: 1
 	}
-	_this.pf = { 
+	_this.pf = {
 		pfMatrix : [],
 		pfGrid : {},
 		pfFinder : new PF.BestFirstFinder({
@@ -88,7 +88,7 @@ function Tile(id, i, j, width, walkable, img) {
 	this.ind = h.V2(i, j);
 	this.pos = h.V2(i*width, j*width);
 	this.walkable = walkable;
-	this.img = img; 
+	this.img = img;
 	return this;
 }
 

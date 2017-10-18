@@ -43,7 +43,7 @@ var DrawingInit = function() {
 	// prepare canvas
 	canvas = document.getElementById("mainCanvas");
 	context = canvas.getContext("2d");
-	
+
 	canvasResize();
 
 	animate();
@@ -64,7 +64,7 @@ function canvasDraw() {
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	context.fillStyle = color_canvas_bg;
 	context.fillRect(0, 0, canvas.width, canvas.height);
-	
+
 	engine.update();
 
 	if(engine.miniMapEnabled) {
@@ -74,23 +74,23 @@ function canvasDraw() {
 			engine.miniMap = miniMap(engine.map, context);
 		}
 	}
-	
+
 	if(engine.map) {
-		// calculate minimum and maximum indexes of visible tiles 
+		// calculate minimum and maximum indexes of visible tiles
 		var imin, imax, jmin, jmax;
-		
+
 		jmin = Math.round(-offsetY/cTileWidth); //index of tile = the offset / tile height
 		jmin = jmin<1 ? 0 : jmin-1; // start at 0 or draw 1 tile more around the edge of screen
-		
+
 		jmax = Math.round((-offsetY+canvas.height)/cTileWidth);
 		jmax = jmax<engine.map.length-1 ? jmax+1 : engine.map.length;
-		
+
 		imin = Math.round(-offsetX/cTileWidth);
 		imin = imin<1 ? 0 : imin-1;
-		
+
 		imax = Math.round((-offsetX+canvas.width)/cTileWidth);
 		imax = imax<engine.map[0].length-1 ? imax+1 : engine.map[0].length;
-		
+
 		// only draw tiles visible on screen
 		for(var j = jmin; j<jmax; j++) {
 			for (var i = imin; i<imax; i++) {
@@ -99,7 +99,7 @@ function canvasDraw() {
 			}
 		}
 	}
-	
+
 	if(engine.data.obj) {
 		for(var i = 0; i < engine.data.obj.length; i++) {
 			var o = engine.data.obj[i];
@@ -134,7 +134,7 @@ function canvasDraw() {
 					break;
 				default:
 					console.log('data object type error! '+o.type);
-				} 
+				}
 			} else {
 				console.log('data object error: object undefined!');
 				console.log(engine.data.obj);
@@ -172,7 +172,7 @@ function miniMap(data, ctx) {
 					}
 				}
 			}
-		}	
+		}
 	}
 	return {
 		base: imageData,
@@ -217,7 +217,7 @@ function drawPoint(imageData, x, y, r, g, b, a, radius) {
 				setPixel(imageData, x,   y+2, r, g, b, a);
 			}
 		}
-	}	
+	}
 }
 
 function drawSquare(imageData, x, y, r, g, b, a, radius) {
@@ -233,5 +233,5 @@ function drawSquare(imageData, x, y, r, g, b, a, radius) {
 			setPixel(imageData, x-1, y+1, r, g, b, a);
 			setPixel(imageData, x+1, y-1, r, g, b, a);
 		}
-	}	
+	}
 }

@@ -14,7 +14,7 @@ if(window.innerWidth > 800) {
 
 //--- Keyboard input ---
 
-var kbKey = { 
+var kbKey = {
 	esc : false,
 	left : false,
 	right : false,
@@ -32,7 +32,7 @@ function handleKeyDown(event) {
 		if(kbKey.esc == false) {
 			escapeKey();
 			kbKey.esc = true;
-		}		
+		}
 		break;
 	case 37:
 		kbKey.left = true;
@@ -52,7 +52,7 @@ function handleKeyDown(event) {
 	case 73:
 		kbKey.i = true;
 		break;
-	case 77:	
+	case 77:
 		if(kbKey.m == false) {
 			mKey();
 			kbKey.m = true;
@@ -92,7 +92,7 @@ function handleKeyUp(event) {
 
 function scrollMap(dtime) {
 	var dOffset = Math.round(cScrollSpeed * dtime);
-	
+
 	if(kbKey.left) offsetX+= dOffset;
 	if(kbKey.right) offsetX-= dOffset;
 	if(kbKey.up) offsetY+= dOffset;
@@ -116,8 +116,8 @@ var mouse = {
 	over: [],
 	cursor: 0,
 	setCursor: function (newCur) {
-		if(newCur != this.cursor) {	
-			this.cursor = newCur; 
+		if(newCur != this.cursor) {
+			this.cursor = newCur;
 			$('#mainCanvas').css({'cursor': 'url('+cursorsDir+newCur+'.ico), default'});
 		}
 	}
@@ -141,12 +141,12 @@ function AddUIevents() {
 	// Keyboard events
 	window.addEventListener('keydown', handleKeyDown, true);
 	window.addEventListener('keyup', handleKeyUp, true);
-	
+
 	// On mouse move, we update the mouse position
 	document.body.addEventListener('mousemove', function (e) {
 		mouse.pos = getMousePos(canvas, e);
 	}, false);
-	
+
 	// On mouse down we call functions only if key was not pressed before. Note it is attached to canvas object - not window.
 	canvas.addEventListener('mousedown', function (e) {
 		if(e.button === cMleft){
@@ -162,7 +162,7 @@ function AddUIevents() {
 			}
 		}
 	}, false);
-	
+
 	// On mouse up we reset properties of mouse object
 	canvas.addEventListener('mouseup', function (e) {
 		if(e.button === cMleft) {

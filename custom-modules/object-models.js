@@ -49,12 +49,12 @@ var baseCharFunctionality = function(obj) {
 		}
 	};
 	obj.follow = function(id) {
-		this.targetID = id;
+		this.followID = id;
 		this.action = 'follow';
 	};
 	obj.reachTarget = function() {
 		this.tpos = this.pos;
-		var targetObj = objManager.get(this.targetID);
+		var targetObj = objManager.get(this.followID);
 		if(targetObj.action!='dead') {
 			if (this.relation(targetObj) < 2){ // TODO change to 0
 				this.hit(targetObj);
@@ -111,7 +111,7 @@ var baseCharFunctionality = function(obj) {
 						this.v.y = vect.y/length*this.speed;
 						this.pos.x += this.v.x*dt;
 						this.pos.y += this.v.y*dt;
-						
+
 						this.curTile();
 						this.status = 2;
 					}
@@ -183,7 +183,7 @@ var _ObjManager = {
 		fs.readdir('./resources/mobs', function(err, files) {
 			console.log('Reading mob list: ' + (h.replaceAll(files.join(),'.data', '')));
 			mobList = Array();
-			for (var i=0; i<files.length; i++) {			
+			for (var i=0; i<files.length; i++) {
 				mobList.push(JSON.parse(fs.readFileSync('./resources/mobs/' + files[i], 'utf8')));
 			}
 		});

@@ -7,7 +7,7 @@ module.exports = {
 	V2: function(x,y) {
 		return {x:x,y:y};
 	},
-	
+
 	// Find object in array by its key value
 	objectFindByKey: function(array, key, value) {
 		for (var i = 0; i < array.length; i++) {
@@ -17,7 +17,7 @@ module.exports = {
 		}
 		return null;
 	},
-	
+
 	// Find objects index in array by its key value
 	indexFindByKey: function(array, key, value) {
 		for (var i = 0; i < array.length; i++) {

@@ -27,7 +27,7 @@ function objData(data) {
 // read map data
 function mapData(data) {
 	engine.map = data;
-	engine.map.bounds = V2(engine.map[0].length*cTileWidth,engine.map.length*cTileWidth); 
+	engine.map.bounds = V2(engine.map[0].length*cTileWidth,engine.map.length*cTileWidth);
 	engine.miniMapEnabled = false;
 }
 

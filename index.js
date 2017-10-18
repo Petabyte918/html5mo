@@ -16,7 +16,7 @@ var game;
 var constants = {
 	cMapX: 20,
 	cMapY: 10,
-	startingMap: './resources/maps/starter_map.data' 
+	startingMap: './resources/maps/starter_map.data'
 };
 
 //---   MAIN GAME CONTROLLER   ---
@@ -29,14 +29,14 @@ var Game = function() {
 		this.init();
 		this.playing = true;
 		this.lastupdate = Date.now();
-		this.update(); 
+		this.update();
 		dto.startEmitUpdates(objManager.obj);
 		console.log('game started!');
 	},
 	this.stop = function() {
 		this.playing = false;
 		dto.stopEmitUpdates();
-		console.log('game stopped!'); 
+		console.log('game stopped!');
 	},
 	this.init = function() {
 		//this.map = map.Map(constants.cMapX, constants.cMapY);
@@ -158,14 +158,14 @@ sio.on('connection', function(socket) {
 		},
 		time: Date.now()
 	});
-	
+
 	// Warn other players that new user connected
 	sio.emit('chat', {
 		msg: 'User '+sesManager.sessions[sesManager.stripSID(socket.id)].name+' connected',
 		timestamp : Date.now(),
 		sendername : 'Server'
 	});
-	
+
 	// if we receive chat message, forward it to other players as well
 	socket.on('chat', function(data){
 		sio.emit('chat', {
@@ -182,10 +182,10 @@ sio.on('connection', function(socket) {
 			senderid : socket.id,
 			sendername : 'Server'
 		});
-		
+
 		sesManager.closeSession(socket, objManager);
     });
-	
+
 	// Socket user interface events
 	socket.on('ui', function(data){
 		switch(data.type) {
