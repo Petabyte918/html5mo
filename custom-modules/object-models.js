@@ -1,10 +1,24 @@
 "use strict"
 
+var settings = require('./settings.js').Settings();
 var h = require('./helpers.js');
 var PF = require('pathfinding');
 var fs = require('fs');
 var map,
 	mobList;
+
+var BarVal = function(val,max,regen) {
+	this.val = val;
+	this.max = max;
+	this.p;
+	this.reg = regen;
+	this.Set = function(val) {
+		this.val = val;
+		this.p = Math.abs(val/this.max*100);
+	}
+	this.Set(val);
+	return this;
+};
 
 //---  OBJECT MODELS   ---
 
@@ -22,9 +36,12 @@ var BaseObj = function(id, img, x, y, type, alliance, name) {
 
 var baseCharFunctionality = function(obj) {
 	obj.targetID;
+	obj.followID;
 	obj.action = 'idle';
-	// Movement speed vector
+	obj.attacking = false;
+	obj.atkcd = 0;
 	obj.path = [];
+	// Movement speed vector
 	obj.v = h.V2(0,0);
 	obj.tpos = obj.pos;
 	obj.curTile = function() {
@@ -67,6 +84,10 @@ var baseCharFunctionality = function(obj) {
 		this.targetID = null;
 		this.decide();
 	}
+	obj.attack = function(id) {
+		this.targetID = id;
+		this.action = 'attack';
+	};
 	// Update object
 	obj.update = function(dt) {
 		if(this.action == 'dead') {
@@ -128,8 +149,16 @@ var CharObj = function(id, img, x, y, name, alliance, sid) {
 	var obj = new BaseObj(id, img, x, y, 'char', alliance, name);
 	// Session ID
 	obj.sid = sid;
+
+	obj.lvl = 1;
+	obj.hp = new BarVal(150,150,1);
+	obj.patk = 10;
+	obj.pdef = 10;
+	obj.atkspd = 1000;
 	// Absolute object speed
 	obj.speed = 0.05;
+
+	obj.range = 32;
 	baseCharFunctionality(obj);
 	obj.decide = function() {
 	};
@@ -140,8 +169,16 @@ var CharObj = function(id, img, x, y, name, alliance, sid) {
 var MobObj = function(id, typeID, x, y) {
 	var mob = mobList.filter(function(o){return o.typeID == typeID})[0];
 	var obj = new BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
+	obj.lvl = mob.level;
+	obj.hp = new BarVal(mob.hp,mob.hp,mob.hpreg);
+	obj.patk = mob.patk;
+	obj.pdef = mob.pdef;
+	obj.atkspd = 1000;
+	obj.exp = mob.exp;
 	// Absolute object speed
 	obj.speed = mob.speed;
+
+	obj.range = 32;
 	baseCharFunctionality(obj);
 	obj.decide = function() {
 	};

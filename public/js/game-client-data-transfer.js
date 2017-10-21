@@ -17,6 +17,10 @@ socket.on('condata', function(JSONdata) {
 	var data = JSONdata.data;
 	objData(JSON.parse(data.objdata));
 	mapData(JSON.parse(data.mapdata));
+	engine.userID = data.newconid;
+	var user = objectFindByKey(engine.data.obj, 'id', engine.userID);
+	document.getElementById("user-name").innerHTML = user.name;
+
 });
 
 // read obj data
@@ -50,4 +54,21 @@ function updateData(JSONdata) {
 		}
 	}
 	engine.data.obj = objn;
+	var user = objectFindByKey(engine.data.obj, 'id', engine.userID),
+		user_hp = document.getElementById("user-hp"),
+		hpBarU = user.hp.p;
+	user_hp.style.width = hpBarU + '%';
+
+	if(engine.targetID != null) {
+		var target = objectFindByKey(engine.data.obj, 'id', engine.targetID);
+		if(target == null) {
+			engine.targetID = null;
+			document.getElementById("target-box").style.display = "none";
+		} else {
+			var target_hp = document.getElementById("target-hp"),
+				hpBarT = target.hp.p;
+			target_hp.style.width = hpBarT + '%';
+		}
+	}
+
 }

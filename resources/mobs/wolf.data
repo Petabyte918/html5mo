@@ -1,9 +1,15 @@
 {
 	"typeID": 3,
+	"level": 3,
 	"name": "Wolf",
+	"hp": 108,
+	"hpreg": 1,
+	"patk": 5,
+	"pdef": 5,
+	"speed": 0.05,
 	"alliance": 2,
 	"img": "m_3.png",
-	"speed": 0.05,
 	"agro": true,
-	"respawn": 60
+	"respawn": 60,
+	"exp": 11
 }

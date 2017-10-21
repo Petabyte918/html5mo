@@ -8,6 +8,8 @@ var engine = {
 	data: {
 		obj:{}
 	},
+	userID: 0,
+	targetID: 0,
 	update: function() {
 		LogClear();
 		this.dtime = Date.now() - this.lastupdate;

@@ -7,17 +7,12 @@ var app = express();
 var http = require('http').Server(app);
 var sio = require('socket.io')(http);
 var sesManager;
+var settings = require('./custom-modules/settings.js').Settings();
 var h = require('./custom-modules/helpers.js');
 var om = require('./custom-modules/object-models.js');
 var map = require('./custom-modules/map.js');
 var objManager = om.ObjManager;
 var game;
-
-var constants = {
-	cMapX: 20,
-	cMapY: 10,
-	startingMap: './resources/maps/starter_map.data'
-};
 
 //---   MAIN GAME CONTROLLER   ---
 
@@ -39,8 +34,8 @@ var Game = function() {
 		console.log('game stopped!');
 	},
 	this.init = function() {
-		//this.map = map.Map(constants.cMapX, constants.cMapY);
-		this.map = map.LoadMap(constants.startingMap);
+		//this.map = map.Map(settings.cMapX, settings.cMapY);
+		this.map = map.LoadMap(settings.startingMap);
 		objManager.init(this.map);
 	},
 	this.update = function() {
@@ -85,6 +80,7 @@ sesManager = {
 			oid: id
 		};
 		this.nextSes++;
+		return id;
 	},
 	closeSession: function (socket, om){
 		var sid = this.stripSID(socket.id);
@@ -148,13 +144,14 @@ var dto = {
 
 // Socket connection events
 sio.on('connection', function(socket) {
-	sesManager.addSession(socket, objManager);
+	var newid = sesManager.addSession(socket, objManager);
 	// Send initial data package to client
 	socket.emit('condata', {
 		data: {
 			objdata: JSON.stringify(objManager.obj),
 			mapdata: JSON.stringify(game.map.grid),
-			pfmatrix: JSON.stringify(game.map.pf.pfMatrix)
+			pfmatrix: JSON.stringify(game.map.pf.pfMatrix),
+			newconid: newid
 		},
 		time: Date.now()
 	});
@@ -191,7 +188,20 @@ sio.on('connection', function(socket) {
 		switch(data.type) {
 			case 'mcl':
 				var obj = objManager.get(sesManager.sessions[sesManager.stripSID(socket.id)].oid);
-					obj.moveTo(h.V2(data.data.x,data.data.y));
+				obj.moveTo(h.V2(data.data.x,data.data.y));
+				break;
+			case 'mclo':
+				var obj = objManager.get(sesManager.sessions[sesManager.stripSID(socket.id)].oid),
+					t =  objManager.get(data.data);
+				if(obj.alliance == t.alliance) {
+					console.log(obj.name+' follow '+t.name);
+					obj.follow(t.id);
+				} else {
+					console.log(obj.name+' attack '+t.name);
+					obj.attack(t.id);
+					obj.follow(t.id);
+				}
+				//console.log(obj.name+' target '+t.name);
 				break;
 			case 'mcr':
 				break;

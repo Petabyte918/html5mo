@@ -177,12 +177,39 @@ function AddUIevents() {
 // On mouse left click we get the coordinates of click and send this data to server
 function MouseLeftClick() {
 	if(mouse.cursor!=0) {
-		var coord = {
-			x: mouse.pos.x - offsetX,
-			y: mouse.pos.y - offsetY
-		};
-		// We send ui (user interface) data which contains the more precise type mcl (mouse click left) and the coordinates
-		sendData('ui', {type:'mcl', data:coord});
+		var target_lvl = document.getElementById("target-lvl"),
+			target_name = document.getElementById("target-name"),
+			target_box = document.getElementById("target-box"),
+			coord = {
+				x: mouse.pos.x - offsetX,
+				y: mouse.pos.y - offsetY
+			};
+			if(mouse.over.length > 0) {
+				// We send ui (user interface) data which contains the more precise type mcl (mouse click left) and the object clicked
+				if(mouse.over[0].id == engine.userID) {
+					var obj = objectFindByKey(engine.data.obj, 'id', engine.userID);
+					target_lvl.innerHTML = obj.lvl;
+					target_name.innerHTML = obj.name;
+					target_box.style.display = "block";
+					engine.targetID = engine.userID;
+				} else {
+					if(engine.targetID == mouse.over[0].id)
+					{
+						sendData('ui', {type:'mclo', data:mouse.over[0].id});
+					} else {
+						var obj = objectFindByKey(engine.data.obj, 'id', mouse.over[0].id);
+						target_lvl.innerHTML = obj.lvl;
+						target_name.innerHTML = obj.name;
+						target_box.style.display = "block";
+						engine.targetID = mouse.over[0].id;
+					}
+				}
+			} else {
+				engine.targetID = null;
+				target_box.style.display = "none";
+				// We send ui (user interface) data which contains the more precise type mcl (mouse click left) and the coordinates
+				sendData('ui', {type:'mcl', data:coord});
+			}
 	}
 }
 

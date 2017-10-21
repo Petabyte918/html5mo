@@ -109,7 +109,7 @@ function canvasDraw() {
 				case 'mob':
 					var x = offsetX;
 					var y = offsetY;
-					if (o.type = 'char') {
+					if (o.type == 'char') {
 						if(o.action == 'move' || o.action == 'follow'){
 							if(o.path.length>1) {
 								for(var j = 0;j<o.path.length;j++) { context.drawImage(content['flag.png'], o.path[j][0]*64+32+offsetX-10, o.path[j][1]*64+32+offsetY-20, 20,20); }

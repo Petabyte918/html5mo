@@ -44,7 +44,7 @@ form button {
 	max-height: 300px;
 }
 
-#messages li { 
+#messages li {
 	padding: 5px 10px;
 }
 
@@ -66,3 +66,39 @@ form button {
 	background-color: rgba(255,255,255,.7);
 }
 
+#target-box, #user-box {
+	background-color: #bfac74;
+	position: absolute;
+	top: 10px;
+	max-width: 200px;
+	width: 20%;
+	padding: 5px;
+	border-radius: 5px;
+}
+
+#target-box {
+	left: 40%;
+}
+
+#user-box {
+	left: 10px;
+}
+
+#target-name-frame, #user-name-frame {
+	text-align: center;
+}
+
+#target-hp-frame, #user-hp-frame {
+	width: 100%;
+	margin-top: 5px;
+	background-color: orange;
+	padding: 2px;
+	border-radius: 3px;
+}
+
+#target-hp, #user-hp {
+	height: 16px;
+	width: 100%;
+	background-color: red;
+	border-radius: 2px;
+}
