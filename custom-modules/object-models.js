@@ -48,59 +48,96 @@ var baseCharFunctionality = function(obj) {
 		this.tile = h.V2(Math.floor(this.pos.y/map.settings.tileW),Math.floor(this.pos.x/map.settings.tileW));
 	}
 	obj.curTile();
-		// Order object to move
-	obj.moveTo = function(targetVector) {
+
+	obj.move = function(targetVector) {
 		var ttile = map.tileByPos(targetVector);
 		if(ttile) {
 			this.path = map.pf.pfFinder.findPath(this.tile.y, this.tile.x, ttile.ind.x, ttile.ind.y, map.pf.pfGrid.clone());
 			this.path.splice(0,1);
 			if(this.path.length>0) {
-				//this.path = PF.Util.smoothenPath(pf.pfGrid, this.path);
+				this.path = PF.Util.smoothenPath(map.pf.pfGrid.clone(), this.path);
 				//this.path = PF.Util.compressPath(this.path);
 				this.ppos = h.V2(map.grid[this.path[0][1]][this.path[0][0]].pos.x,map.grid[this.path[0][1]][this.path[0][0]].pos.y);
 				this.ppos.x += map.settings.tileW/2;
 				this.ppos.y += map.settings.tileW/2;
 			}
-			this.tpos = targetVector;
-			this.action = 'move';
+			this.tpos = h.V2(targetVector.x, targetVector.y);
 		}
+	};
+	// Order object to move
+	obj.moveTo = function(targetVector) {
+		this.move(targetVector);
+		this.action = 'move';
 	};
 	obj.follow = function(id) {
 		this.followID = id;
 		this.action = 'follow';
 	};
-	obj.reachTarget = function() {
+	obj.reachTarget = function(om) {
 		this.tpos = this.pos;
-		var targetObj = objManager.get(this.followID);
+		var targetObj = om.get(this.followID);
 		if(targetObj.action!='dead') {
-			if (this.relation(targetObj) < 2){ // TODO change to 0
+			if(this.targetID==this.followID) {
 				this.hit(targetObj);
 			}
 		} else {
-			this.loseTarget();
+			this.loseTarget(this.followID);
 		}
 	};
-	obj.loseTarget = function() {
-		this.targetID = null;
+	obj.loseTarget = function(target) {
+		if(this.targetID == target)
+			this.targetID = null;
+		if(this.followID == target)
+			this.followID = null;
+		this.action = 'idle';
 		this.decide();
 	}
 	obj.attack = function(id) {
 		this.targetID = id;
 		this.action = 'attack';
 	};
+	obj.hit = function(targetObj) {
+		if(targetObj.action!='dead') {
+			if (this.atkcd<=0) {
+				this.atkcd = this.atkspd;
+				var dmg = Math.abs(this.patk + (Math.random()-0.5)*this.patk*0.2);
+				//console.log('dmg '+dmg);
+				var newHp = targetObj.hp.val-dmg;
+				if (newHp>0) {
+					targetObj.hp.Set(newHp);
+				} else {
+					console.log(this.name + ' has killed ' + targetObj.name);
+					targetObj.die();
+					this.loseTarget(targetObj.id);
+				}
+				targetObj.status = 2;
+			}
+		} else {
+			this.loseTarget(targetObj.id);
+		}
+	};
+	obj.die = function() {
+		this.hp.Set(0);
+		this.targetID = null;
+		this.followID = null;
+		this.action = 'dead';
+		this.status = 2;
+	};
 	// Update object
-	obj.update = function(dt) {
+	obj.update = function(dt, om) {
 		if(this.action == 'dead') {
 		// if is dead do nothing
 		} else {
-			if(this.action == 'follow') if(this.targetID!= null) {
-				var t = objManager.get(this.targetID);
+			if(this.atkcd>0)
+				this.atkcd -= dt;
+			if(this.action == 'follow') if(this.followID != null) {
+				var t = om.get(this.followID);
 				if(t == null) {
 					this.action = 'idle';
-					this.targetID = null;
+					this.followID = null;
 				} else {
 					// set target position to target object location
-					this.tpos = t.pos;
+					this.move(t.pos);
 				}
 			}
 			if(this.action == 'follow' || this.action == 'move') {
@@ -112,8 +149,8 @@ var baseCharFunctionality = function(obj) {
 				if(tmppos!= this.pos.y || tmppos.x!= this.pos.x) {
 					var vect = h.V2(tmppos.x-this.pos.x, tmppos.y-this.pos.y);
 					var length = Math.sqrt(vect.x * vect.x + vect.y * vect.y);
-					if(this.action == 'follow' && length<constants.cFollowDist){
-						this.reachTarget();
+					if(this.action == 'follow' && length<settings.cFollowDist){
+						this.reachTarget(om);
 					} else if(length < 5) {//this.v*2*dt) {
 						if(this.path.length>1) {
 							this.path.splice(0,1);
@@ -199,7 +236,7 @@ var _ObjManager = {
 		var si, sj;
 		si = (map.settings.spawnI+this.spawnMapI[map.settings.nextSpawn])*map.settings.tileW + map.settings.tileW/2;
 		sj = (map.settings.spawnJ+this.spawnMapJ[map.settings.nextSpawn])*map.settings.tileW + map.settings.tileW/2;
-		this.obj.push(new CharObj(this.nextid, icon, si, sj, name, alliance, sid));
+		this.obj.push(new CharObj(this.nextid, icon, si, sj, name, alliance, sid, this));
 		this.nextid++;
 		return this.nextid-1;
 	},
@@ -227,7 +264,7 @@ var _ObjManager = {
 	},
 	update: function(dt) {
 		for(var i = 0; i < this.obj.length; i++) {
-			if(this.obj[i]) this.obj[i].update(dt);
+			if(this.obj[i]) this.obj[i].update(dt, this);
 		}
 		if(mobList)for(var i = 0; i < map.mobSpawnList.length; i++) {
 			if(!map.mobSpawnList[i].spawned) {

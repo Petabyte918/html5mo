@@ -124,15 +124,26 @@ var dto = {
 	},
 	emitUpdates: function() {
 		var cd = [];
+		var removeList = [];
 		for(var i = 0; i < this.objectsRef.length; i++) {
-			if(this.objectsRef[i]) {
-				if(this.objectsRef[i].status == 1) {
-					cd.push({id: this.objectsRef[i].id, status: 1});
-				} else if(this.objectsRef[i].status == 2) {
+			if(this.objectsRef[i].status == 1) {
+				cd.push({id: this.objectsRef[i].id, status: 1});
+			} else if(this.objectsRef[i].status == 2) {
+				if(this.objectsRef[i].action == 'dead') {
+					removeList.push(this.objectsRef[i].id);
+					console.log(this.objectsRef[i].name+' is dead '+ this.objectsRef[i].status);
+					cd.push({id: this.objectsRef[i].id, status: 0, data: this.objectsRef[i]});
+					this.objectsRef[i].status = 0;
+				} else {
 					cd.push({id: this.objectsRef[i].id, status: 2, data: this.objectsRef[i]});
 					this.objectsRef[i].status = 1;
 				}
 			}
+		}
+		for(var i = 0; i < removeList.length; i++) {
+			console.log('remove '+ removeList[i]);
+			const index = this.objectsRef.findIndex(item => item.id === removeList[i]);;
+			this.objectsRef.splice(index, 1);
 		}
 		sio.emit('updatedata', {
 			data: JSON.stringify(cd),
