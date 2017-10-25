@@ -22,7 +22,8 @@ var kbKey = {
 	down : false,
 	c : false,
 	i : false,
-	m : false
+	m : false,
+	e : false
 };
 
 function handleKeyDown(event) {
@@ -48,6 +49,12 @@ function handleKeyDown(event) {
 		break;
 	case 67:
 		kbKey.c = true;
+		break;
+	case 69:
+		if(kbKey.e == false) {
+			eKey();
+			kbKey.e = true;
+		}
 		break;
 	case 73:
 		kbKey.i = true;
@@ -80,6 +87,9 @@ function handleKeyUp(event) {
 		break;
 	case 67:
 		kbKey.c = false;
+		break;
+	case 69:
+		kbKey.e = false;
 		break;
 	case 73:
 		kbKey.i = false;
@@ -184,6 +194,10 @@ function MouseLeftClick() {
 				x: mouse.pos.x - offsetX,
 				y: mouse.pos.y - offsetY
 			};
+		if (engine.editMode) {
+			engine.tileByPos(mouse.coord).img = 'tiles/cobblestone-regular.jpg';
+			engine.tileByPos(mouse.coord).walkable = 0;
+		} else {
 			if(mouse.over.length > 0) {
 				// We send ui (user interface) data which contains the more precise type mcl (mouse click left) and the object clicked
 				if(mouse.over[0].id == engine.userID) {
@@ -210,11 +224,16 @@ function MouseLeftClick() {
 				// We send ui (user interface) data which contains the more precise type mcl (mouse click left) and the coordinates
 				sendData('ui', {type:'mcl', data:coord});
 			}
+		}
 	}
 }
 
 // Placeholder for actions to be done on mouse right click
 function MouseRightClick() {
+	if (engine.editMode) {
+		engine.tileByPos(mouse.coord).img = 'tiles/grass-sparse.jpg';
+		engine.tileByPos(mouse.coord).walkable = 2;
+	}
 }
 
 // Placeholder for actions to happen on Escape key press
@@ -229,6 +248,11 @@ function mKey() {
 		if(engine.miniMap.base) {
 			engine.miniMapEnabled = true;
 		}
+}
+
+// Placeholder for actions to happen on E key press
+function eKey() {
+	engine.editMode = !engine.editMode;
 }
 
 //--- USER PANELS ---

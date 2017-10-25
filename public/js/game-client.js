@@ -28,7 +28,7 @@ var engine = {
 						mouse.pos.y>engine.data.obj[i].pos.y+offsetY-cObjIconSize){
 						mouse.over.push(engine.data.obj[i]);
 					}
-					if(mouse.over.length > 0) {
+					if(mouse.over.length > 0 && !engine.editMode) {
 						var type = objectFindByKey(this.data.obj, 'id', mouse.over[mouse.over.length-1].id).type;
 						switch(type) {
 							case 'char':
