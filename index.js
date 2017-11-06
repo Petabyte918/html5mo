@@ -218,6 +218,51 @@ sio.on('connection', function(socket) {
 				break;
 			case 'mcr':
 				break;
+			case 'drop':
+				data = data.data;
+				var from,
+					to;
+				if(data.from && data.to) {
+					from = data.from.split("_");
+					to = data.to.split("_");
+				} else {
+					console.log('drop error! data:');
+					console.log(data);
+					break;
+				}
+				var fromobj = objManager.get(from[0]),
+					frominv = {},
+					toobj = objManager.get(to[0]),
+					toinv = {};
+				if (from[1] == 'i') {
+					frominv = fromobj.inv;
+				}
+				else if (from[1] == 'l') {
+					frominv = fromobj.loadout;
+				} else
+					console.log('inv undefined: '+from[1]);
+				if (to[1] == 'i') {
+					toinv = toobj.inv;
+				}
+				else if (to[1] == 'l') {
+					toinv = toobj.loadout;
+				} else
+					console.log('inv undefined: '+to[1]);
+
+				var err = inv.MoveItem(frominv.slot[from[2]],toinv.slot[to[2]]);
+				if (err!='') {
+					console.log(err);
+				} else {
+					if(from[0] == to[0]) {
+						if (toobj.type == 'char') {
+							dto.sendTo(to[0],'update_inv',JSON.stringify({l:fromobj.loadout,i:fromobj.inv}));
+						}
+					} else {
+						fromobj.status = 2;
+						toobj.status = 2;
+					}
+				}
+				break;
 			default:
 				console.log('Error: unknown "ui" data type!');
 				break;

@@ -151,3 +151,22 @@ var LogClear = function(msg) {
 	if ($("#debug-window p").length>20)
 		$('#debug-window p').last().remove();
 }
+
+function allowDrop(ev) {
+	ev.preventDefault();
+}
+
+function drag(ev) {
+	ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+	ev.preventDefault();
+	var id = ev.dataTransfer.getData("text"),
+		data = document.getElementById(id),
+		src = ev.srcElement,
+		target = ev.target;
+	sendData('ui', {type:'drop', data:{from:id, to:target.id.substring(2,10)}});
+	data.id = ev.target.id.substr(2,10);
+	ev.target.appendChild(data);
+}
