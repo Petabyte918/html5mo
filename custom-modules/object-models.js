@@ -15,7 +15,7 @@ var BarVal = function(val,max,regen) {
 	this.Set = function(val) {
 		this.val = val;
 		this.p = Math.abs(val/this.max*100);
-	}
+	};
 	this.Set(val);
 	return this;
 };
@@ -46,7 +46,7 @@ var baseCharFunctionality = function(obj) {
 	obj.tpos = obj.pos;
 	obj.curTile = function() {
 		this.tile = h.V2(Math.floor(this.pos.y/map.settings.tileW),Math.floor(this.pos.x/map.settings.tileW));
-	}
+	};
 	obj.curTile();
 
 	obj.move = function(targetVector) {
@@ -91,7 +91,7 @@ var baseCharFunctionality = function(obj) {
 			this.followID = null;
 		this.action = 'idle';
 		this.decide();
-	}
+	};
 	obj.attack = function(id) {
 		this.targetID = id;
 		this.action = 'attack';
@@ -130,14 +130,16 @@ var baseCharFunctionality = function(obj) {
 		} else {
 			if(this.atkcd>0)
 				this.atkcd -= dt;
-			if(this.action == 'follow') if(this.followID != null) {
-				var t = om.get(this.followID);
-				if(t == null) {
-					this.action = 'idle';
-					this.followID = null;
-				} else {
-					// set target position to target object location
-					this.move(t.pos);
+			if(this.action == 'follow') {
+				if(this.followID !== null) {
+					var t = om.get(this.followID);
+					if(t === null) {
+						this.action = 'idle';
+						this.followID = null;
+					} else {
+						// set target position to target object location
+						this.move(t.pos);
+					}
 				}
 			}
 			if(this.action == 'follow' || this.action == 'move') {
@@ -154,7 +156,7 @@ var baseCharFunctionality = function(obj) {
 					} else if(length < 5) {//this.v*2*dt) {
 						if(this.path.length>1) {
 							this.path.splice(0,1);
-							this.ppos = map.grid[this.path[0][1]][this.path[0][0]].pos,{};
+							this.ppos = map.grid[this.path[0][1]][this.path[0][0]].pos;
 							//this.ppos.x += map.settings.tileW/2;
 							//this.ppos.y += map.settings.tileW/2;
 						} else {
@@ -179,7 +181,7 @@ var baseCharFunctionality = function(obj) {
 			}
 		}
 	};
-}
+};
 
 // Character object - the object that will live and move in game
 var CharObj = function(id, img, x, y, name, alliance, sid) {
@@ -204,7 +206,7 @@ var CharObj = function(id, img, x, y, name, alliance, sid) {
 
 // Mob object - non user controlled object that will be fought by users
 var MobObj = function(id, typeID, x, y) {
-	var mob = mobList.filter(function(o){return o.typeID == typeID})[0];
+	var mob = res.mobList.filter(function(o){return o.typeID == typeID})[0];
 	var obj = new BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
 	obj.lvl = mob.level;
 	obj.hp = new BarVal(mob.hp,mob.hp,mob.hpreg);
@@ -254,25 +256,18 @@ var _ObjManager = {
 	},
 	init: function(mapRef) {
 		map = mapRef;
-		fs.readdir('./resources/mobs', function(err, files) {
-			console.log('Reading mob list: ' + (h.replaceAll(files.join(),'.data', '')));
-			mobList = Array();
-			for (var i=0; i<files.length; i++) {
-				mobList.push(JSON.parse(fs.readFileSync('./resources/mobs/' + files[i], 'utf8')));
-			}
-		});
 	},
 	update: function(dt) {
 		for(var i = 0; i < this.obj.length; i++) {
 			if(this.obj[i]) this.obj[i].update(dt, this);
 		}
-		if(mobList)for(var i = 0; i < map.mobSpawnList.length; i++) {
+		if(res.mobList)for(i = 0; i < map.mobSpawnList.length; i++) {
 			if(!map.mobSpawnList[i].spawned) {
 				this.addMob(
 					map.mobSpawnList[i].id,
 					map.mobSpawnList[i].x * map.settings.tileW + map.settings.tileW/2,
 					map.mobSpawnList[i].y * map.settings.tileW + map.settings.tileW/2)
-				console.log('Spawn '+  mobList.filter(function(o){return o.typeID == map.mobSpawnList[i].id})[0].name);
+				console.log('Spawn '+  res.mobList.filter(function(o){return o.typeID == map.mobSpawnList[i].id})[0].name);
 				map.mobSpawnList[i].spawned = 1;
 			}
 		}

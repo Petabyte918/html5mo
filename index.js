@@ -45,7 +45,7 @@ var Game = function() {
 			objManager.update(this.dtime);
 			setTimeout(this.update.bind(this),100);
 		}
-	}
+	};
 };
 
 game = new Game();
@@ -140,9 +140,9 @@ var dto = {
 				}
 			}
 		}
-		for(var i = 0; i < removeList.length; i++) {
+		for(i = 0; i < removeList.length; i++) {
 			console.log('remove '+ removeList[i]);
-			const index = this.objectsRef.findIndex(item => item.id === removeList[i]);;
+			const index = this.objectsRef.findIndex(item => item.id === removeList[i]);
 			this.objectsRef.splice(index, 1);
 		}
 		sio.emit('updatedata', {
@@ -192,7 +192,7 @@ sio.on('connection', function(socket) {
 		});
 
 		sesManager.closeSession(socket, objManager);
-    });
+	});
 
 	// Socket user interface events
 	socket.on('ui', function(data){

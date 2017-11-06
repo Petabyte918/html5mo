@@ -31,7 +31,11 @@ var offsetY = 0;
 //---   CONTENT   ---
 
 // load all the content required
-var imgList = ['char.png', 'm_1.png', 'm_2.png', 'm_3.png', 'm_4.png', 'flag.png', 'tiles/grass-sparse.jpg', 'tiles/water-plain.jpg', 'tiles/cobblestone-regular.jpg'];
+var imgList = [
+	'char.png', 'flag.png',
+	'm_1.png', 'm_2.png', 'm_3.png', 'm_4.png',
+	'tiles/grass-sparse.jpg', 'tiles/water-plain.jpg', 'tiles/cobblestone-regular.jpg'
+];
 for(var i = 0; i < imgList.length; i++) {
 	content[imgList[i]] = new Image();
 	content[imgList[i]].src = 'img/'+imgList[i];
@@ -182,18 +186,18 @@ function miniMap(data, ctx) {
 }
 
 function setPixel(imageData, x, y, r, g, b, a) {
-    var index = (x + y * imageData.width) * 4;
-    imageData.data[index+0] = r;
-    imageData.data[index+1] = g;
-    imageData.data[index+2] = b;
-    imageData.data[index+3] = a;
+	var index = (x + y * imageData.width) * 4;
+	imageData.data[index+0] = r;
+	imageData.data[index+1] = g;
+	imageData.data[index+2] = b;
+	imageData.data[index+3] = a;
 }
 
 function copyImageData(src, ctx)
 {
-    var dst = ctx.createImageData(src.width, src.height);
-    dst.data.set(src.data);
-    return dst;
+	var dst = ctx.createImageData(src.width, src.height);
+	dst.data.set(src.data);
+	return dst;
 }
 
 function drawPoint(imageData, x, y, r, g, b, a, radius) {

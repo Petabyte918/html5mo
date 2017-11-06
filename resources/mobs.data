@@ -1,0 +1,62 @@
+[
+	{
+		"typeID": 1,
+		"level": 1,
+		"name": "Slug",
+		"hp": 100,
+		"hpreg": 1,
+		"patk": 5,
+		"pdef": 5,
+		"speed": 0.02,
+		"alliance": 2,
+		"img": "m_1.png",
+		"agro": false,
+		"respawn": 60,
+		"exp": 10
+	},
+	{
+		"typeID": 2,
+		"level": 2,
+		"name": "Racoon",
+		"hp": 104,
+		"hpreg": 1,
+		"patk": 5,
+		"pdef": 5,
+		"speed": 0.06,
+		"alliance": 2,
+		"img": "m_2.png",
+		"agro": false,
+		"respawn": 60,
+		"exp": 10
+	},
+	{
+		"typeID": 3,
+		"level": 3,
+		"name": "Wolf",
+		"hp": 108,
+		"hpreg": 1,
+		"patk": 5,
+		"pdef": 5,
+		"speed": 0.05,
+		"alliance": 2,
+		"img": "m_3.png",
+		"agro": true,
+		"respawn": 60,
+		"exp": 11
+	},
+	{
+		"typeID": 4,
+		"level": 4,
+		"name": "Bear",
+		"hp": 112,
+		"hpreg": 1,
+		"patk": 6,
+		"pdef": 6,
+		"speed": 0.03,
+		"alliance": 2,
+		"img": "m_4.png",
+		"agro": false,
+		"respawn": 60,
+		"exp": 11
+	}
+]

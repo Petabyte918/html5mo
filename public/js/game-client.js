@@ -148,6 +148,6 @@ var Log = function(msg) {
 }
 
 var LogClear = function(msg) {
-  	if ($("#debug-window p").length>20)
-  		$('#debug-window p').last().remove();
+	if ($("#debug-window p").length>20)
+		$('#debug-window p').last().remove();
 }
