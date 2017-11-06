@@ -8,6 +8,7 @@ var http = require('http').Server(app);
 var sio = require('socket.io')(http);
 var sesManager;
 var settings = require('./custom-modules/settings.js').Settings();
+var res = require('./custom-modules/resources.js');
 var h = require('./custom-modules/helpers.js');
 var om = require('./custom-modules/object-models.js');
 var map = require('./custom-modules/map.js');
