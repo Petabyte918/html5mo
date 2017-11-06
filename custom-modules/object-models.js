@@ -1,11 +1,11 @@
 "use strict"
 
 var settings = require('./settings.js').Settings();
+var res = require('./resources.js');
 var h = require('./helpers.js');
 var PF = require('pathfinding');
 var fs = require('fs');
-var map,
-	mobList;
+var map;
 
 var BarVal = function(val,max,regen) {
 	this.val = val;
