@@ -50,7 +50,10 @@ function handleKeyDown(event) {
 		kbKey.c = true;
 		break;
 	case 73:
-		kbKey.i = true;
+		if(kbKey.i == false) {
+			iKey();
+			kbKey.i = true;
+		}
 		break;
 	case 77:
 		if(kbKey.m == false) {
@@ -219,6 +222,11 @@ function MouseRightClick() {
 
 // Placeholder for actions to happen on Escape key press
 function escapeKey() {
+}
+
+// Placeholder for actions to happen on I key press
+function iKey() {
+	gui.ToggleInventory();
 }
 
 // Placeholder for actions to happen on M key press

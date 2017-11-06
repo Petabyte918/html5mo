@@ -1,0 +1,65 @@
+[
+	{
+		"id": 1,
+		"iType": 1,
+		"name": "Animal skin",
+		"value": 5,
+		"img": "i_1.png"
+	},
+	{
+		"id": 2,
+		"iType": 2,
+		"iSub": 20,
+		"name": "dagger",
+		"value": 20,
+		"img": "i_2.png"
+	},
+	{
+		"id": 3,
+		"iType": 2,
+		"iSub": 21,
+		"name": "sword",
+		"value": 20,
+		"img": "i_3.png"
+	},
+	{
+		"id": 4,
+		"iType": 2,
+		"iSub": 22,
+		"name": "Big Axe",
+		"value": 20,
+		"img": "i_4.png"
+	},
+	{
+		"id": 5,
+		"iType": 2,
+		"iSub": 23,
+		"name": "bow",
+		"value": 20,
+		"img": "i_5.png"
+	},
+	{
+		"id": 6,
+		"iType": 2,
+		"iSub": 24,
+		"name": "arrows",
+		"value": 1,
+		"img": "i_6.png"
+	},
+	{
+		"id": 7,
+		"iType": 2,
+		"iSub": 25,
+		"name": "shield",
+		"value": 20,
+		"img": "i_7.png"
+	},
+	{
+		"id": 8,
+		"iType": 2,
+		"iSub": 3,
+		"name": "plate armor",
+		"value": 20,
+		"img": "i_8.png"
+	}
+]

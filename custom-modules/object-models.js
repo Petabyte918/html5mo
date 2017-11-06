@@ -3,6 +3,7 @@
 var settings = require('./settings.js').Settings();
 var res = require('./resources.js');
 var h = require('./helpers.js');
+var inv = require('./inventory.js');
 var PF = require('pathfinding');
 var fs = require('fs');
 var map;
@@ -199,6 +200,8 @@ var CharObj = function(id, img, x, y, name, alliance, sid) {
 
 	obj.range = 32;
 	baseCharFunctionality(obj);
+	obj.loadout = new inv.Inventory(id, 'l', 49);
+	obj.inv = new inv.Inventory(id, 'i', 49);
 	obj.decide = function() {
 	};
 	return obj;

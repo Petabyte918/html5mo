@@ -163,6 +163,7 @@ sio.on('connection', function(socket) {
 			objdata: JSON.stringify(objManager.obj),
 			mapdata: JSON.stringify(game.map.grid),
 			pfmatrix: JSON.stringify(game.map.pf.pfMatrix),
+			itemdata: JSON.stringify(res.itemList),
 			newconid: newid
 		},
 		time: Date.now()
