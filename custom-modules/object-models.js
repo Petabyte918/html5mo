@@ -211,6 +211,28 @@ var CharObj = function(id, img, x, y, name, alliance, sid) {
 var MobObj = function(id, typeID, x, y) {
 	var mob = res.mobList.filter(function(o){return o.typeID == typeID})[0];
 	var obj = new BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
+	obj.typeID = typeID;
+	obj.lvl = mob.level;
+	obj.hp = new BarVal(mob.hp,mob.hp,mob.hpreg);
+	obj.patk = mob.patk;
+	obj.pdef = mob.pdef;
+	obj.atkspd = 1000;
+	obj.exp = mob.exp;
+	// Absolute object speed
+	obj.speed = mob.speed;
+
+	obj.range = 32;
+	baseCharFunctionality(obj);
+	obj.decide = function() {
+	};
+	return obj;
+};
+
+
+var MobLoad = function(id, typeID, x, y) {
+	var mob = res.mobList.filter(function(o){return o.typeID == typeID})[0];
+	var obj = new BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
+	obj.typeID = typeID;
 	obj.lvl = mob.level;
 	obj.hp = new BarVal(mob.hp,mob.hp,mob.hpreg);
 	obj.patk = mob.patk;
@@ -270,10 +292,52 @@ var _ObjManager = {
 					map.mobSpawnList[i].id,
 					map.mobSpawnList[i].x * map.settings.tileW + map.settings.tileW/2,
 					map.mobSpawnList[i].y * map.settings.tileW + map.settings.tileW/2)
-				console.log('Spawn '+  res.mobList.filter(function(o){return o.typeID == map.mobSpawnList[i].id})[0].name);
+				//console.log('Spawn '+  res.mobList.filter(function(o){return o.typeID == map.mobSpawnList[i].id})[0].name);
 				map.mobSpawnList[i].spawned = 1;
 			}
 		}
+	},
+	UserSave: function(id) {
+		var u = this.get(id);
+		if(u) {
+			fs.writeFile("./saved-data/users/"+u.name+".dat", JSON.stringify(u) , function(err) {
+				if(err) {
+					return console.log(err);
+				}
+				console.log("User "+u.name+" saved!");
+			});
+		} else {
+			console.log('Save error: user not found!');
+		}
+	},
+	LoadUser: function(sid, nobj) {
+		var obj = new BaseObj(this.nextid, nobj.img, nobj.pos.x, nobj.pos.y, 'char', nobj.alliance, nobj.name);
+		// Session ID
+		obj.sid = sid;
+
+		obj.lvl = nobj.lvl;
+		obj.hp = new BarVal(nobj.hp.val,nobj.hp.max,nobj.hp.regen);
+		obj.patk = nobj.patk;
+		obj.pdef = nobj.pdef;
+		obj.atkspd = nobj.atkspd;
+		// Absolute object speed
+		obj.speed = nobj.speed;
+
+		obj.range = nobj.range;
+		baseCharFunctionality(obj);
+		obj.loadout = new inv.Inventory(this.nextid, 'l', 49);
+		obj.inv = new inv.Inventory(this.nextid, 'i', 49);
+		for(var i = 0; i<obj.loadout.slot.length; i++)
+			if(nobj.loadout.slot[i].count>0)
+				obj.loadout.slot[i].AddItem(nobj.loadout.slot[i].iid, nobj.loadout.slot[i].name, nobj.loadout.slot[i].count);
+		for(var i = 0; i<obj.inv.slot.length; i++)
+			if(nobj.inv.slot[i].count>0)
+				obj.inv.slot[i].AddItem(nobj.inv.slot[i].iid, nobj.inv.slot[i].name, nobj.inv.slot[i].count);
+		obj.decide = function() {
+		};
+		this.obj.push(obj);
+		this.nextid++;
+		return this.nextid-1;
 	}
 };
 

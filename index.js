@@ -6,12 +6,14 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var sio = require('socket.io')(http);
+var fs = require('fs');
 var sesManager;
 var settings = require('./custom-modules/settings.js').Settings();
 var res = require('./custom-modules/resources.js');
 var h = require('./custom-modules/helpers.js');
 var om = require('./custom-modules/object-models.js');
 var map = require('./custom-modules/map.js');
+var inv = require('./custom-modules/inventory.js');
 var objManager = om.ObjManager;
 var game;
 
@@ -47,6 +49,18 @@ var Game = function() {
 			setTimeout(this.update.bind(this),100);
 		}
 	};
+	this.Save = function() {
+		console.log('Saving...');
+		fs.writeFile("./saved-data/save1.dat", JSON.stringify(objManager.obj) , function(err) {
+			if(err) {
+				return console.log(err);
+			}
+			console.log("The game was saved!");
+		});
+	}
+	this.Load = function() {
+		console.log('Loading!');
+	}
 };
 
 game = new Game();
@@ -72,19 +86,30 @@ sesManager = {
 	nextSes:0,
 	addSession: function (socket, om) {
 		var newname = "User"+this.nextSes;
-		var sid = this.stripSID(socket.id);
-		var id = om.addUser('char.png', 100, 100, newname, 1, sid);
-		console.log(newname+' connected');
+		return this.LoadUser(newname, socket, om);
+	},
+	LoadUser: function(name, socket, om) {
+		var sid = this.stripSID(socket.id),
+			id,
+			file = "./saved-data/users/"+name+".dat";
+		if(fs.existsSync(file)) {
+			id = om.LoadUser(sid, JSON.parse(fs.readFileSync(file, 'utf8')));
+		} else {
+			id = om.addUser('char.png', 100, 100, name, 1, sid);
+		}
+		 
+		console.log(name+' connected');
 		this.sessions[sid] = {
-			name: newname,
+			name: name,
 			socket: socket,
 			oid: id
 		};
 		this.nextSes++;
 		return id;
 	},
-	closeSession: function (socket, om){
+	closeSession: function (socket, om) {
 		var sid = this.stripSID(socket.id);
+		om.UserSave(this.sessions[sid].oid);
 		console.log(this.sessions[sid].name+' has disconnected');
 		om.removeObj(this.sessions[sid].oid);
 		delete this.sessions[sid];
@@ -177,12 +202,16 @@ sio.on('connection', function(socket) {
 	});
 
 	// if we receive chat message, forward it to other players as well
-	socket.on('chat', function(data){
-		sio.emit('chat', {
-			msg: data.msg,
-			timestamp : data.timestamp,
-			sendername : sesManager.sessions[sesManager.stripSID(socket.id)].name
-		});
+	socket.on('chat', function(data) {
+		if(data.msg[0] == '/') {
+			ProcessCommand(socket, data);
+		} else {
+			sio.emit('chat', {
+				msg: data.msg,
+				timestamp : data.timestamp,
+				sendername : sesManager.sessions[sesManager.stripSID(socket.id)].name
+			});
+		}
 	});
 
 	socket.on('disconnect', function() {
@@ -197,7 +226,7 @@ sio.on('connection', function(socket) {
 	});
 
 	// Socket user interface events
-	socket.on('ui', function(data){
+	socket.on('ui', function(data) {
 		switch(data.type) {
 			case 'mcl':
 				var obj = objManager.get(sesManager.sessions[sesManager.stripSID(socket.id)].oid);
@@ -269,5 +298,35 @@ sio.on('connection', function(socket) {
 		}
 	});
 });
+
+function ProcessCommand(socket, data) {
+	var command = data.msg.split(" ");
+	command[0] =  command[0].substring(1,command[0].length);
+	
+	switch(command[0]) {
+		case 'start':
+			if(!game.playing) {
+				game.start();
+			} else {
+				console.log('Game already running!');
+			}
+			break;
+		case 'stop':
+			if(game.playing) {
+				game.stop();
+			} else {
+				console.log('Game already stopped!');
+			}
+			break;
+		case 'save':
+			game.Save();
+			break;
+		case 'load':
+			game.Load();
+			break;
+		default:
+			console.log('Unknown command: ' + command[0]);
+	}
+}
 
 game.start();

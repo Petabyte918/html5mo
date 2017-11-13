@@ -166,7 +166,12 @@ function drop(ev) {
 		data = document.getElementById(id),
 		src = ev.srcElement,
 		target = ev.target;
-	sendData('ui', {type:'drop', data:{from:id, to:target.id.substring(2,10)}});
-	data.id = ev.target.id.substr(2,10);
+	var targetID = target.id.split('_')[0] == 's'? target.id.substring(2,10):target.id;	
+	var data = {from:id, to:targetID}
+	sendData('ui', {type:'drop', data:data});
+	data.id = targetID;
 	ev.target.appendChild(data);
 }
+
+    sendData('ui', {type:'drop', data:{from:id, to:target.id.substring(2,10)}});
+
