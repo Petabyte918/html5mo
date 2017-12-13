@@ -1,7 +1,12 @@
 [
 	{
+		"id": 0
+	},
+	{
 		"id": 1,
 		"iType": 1,
+		"iSub": 0,
+		"iSlot": 0,
 		"name": "Animal skin",
 		"value": 5,
 		"img": "i_1.png"
@@ -10,6 +15,7 @@
 		"id": 2,
 		"iType": 2,
 		"iSub": 20,
+		"iSlot": 1,
 		"name": "dagger",
 		"value": 20,
 		"img": "i_2.png"
@@ -18,6 +24,7 @@
 		"id": 3,
 		"iType": 2,
 		"iSub": 21,
+		"iSlot": 1,
 		"name": "sword",
 		"value": 20,
 		"img": "i_3.png"
@@ -26,7 +33,8 @@
 		"id": 4,
 		"iType": 2,
 		"iSub": 22,
-		"name": "Big Axe",
+		"iSlot": 1,
+		"name": "Axe",
 		"value": 20,
 		"img": "i_4.png"
 	},
@@ -34,6 +42,7 @@
 		"id": 5,
 		"iType": 2,
 		"iSub": 23,
+		"iSlot": 1,
 		"name": "bow",
 		"value": 20,
 		"img": "i_5.png"
@@ -42,6 +51,7 @@
 		"id": 6,
 		"iType": 2,
 		"iSub": 24,
+		"iSlot": 3,
 		"name": "arrows",
 		"value": 1,
 		"img": "i_6.png"
@@ -50,6 +60,7 @@
 		"id": 7,
 		"iType": 2,
 		"iSub": 25,
+		"iSlot": 2,
 		"name": "shield",
 		"value": 20,
 		"img": "i_7.png"
@@ -58,6 +69,7 @@
 		"id": 8,
 		"iType": 2,
 		"iSub": 3,
+		"iSlot": 4,
 		"name": "plate armor",
 		"value": 20,
 		"img": "i_8.png"

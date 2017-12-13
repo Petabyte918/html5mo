@@ -35,7 +35,9 @@ var BaseObj = function(id, img, x, y, type, alliance, name) {
 	return this;
 };
 
-var baseCharFunctionality = function(obj) {
+var baseCharFunctionality = function(obj, map) {
+	obj.atrib = [30,30,30,30,30,30];
+	obj.stat = {};
 	obj.targetID;
 	obj.followID;
 	obj.action = 'idle';
@@ -50,7 +52,7 @@ var baseCharFunctionality = function(obj) {
 	};
 	obj.curTile();
 
-	obj.move = function(targetVector) {
+	obj.move = function(targetVector, map) {
 		var ttile = map.tileByPos(targetVector);
 		if(ttile) {
 			this.path = map.pf.pfFinder.findPath(this.tile.y, this.tile.x, ttile.ind.x, ttile.ind.y, map.pf.pfGrid.clone());
@@ -66,8 +68,8 @@ var baseCharFunctionality = function(obj) {
 		}
 	};
 	// Order object to move
-	obj.moveTo = function(targetVector) {
-		this.move(targetVector);
+	obj.moveTo = function(targetVector, map) {
+		this.move(targetVector, map);
 		this.action = 'move';
 	};
 	obj.follow = function(id) {
@@ -76,7 +78,7 @@ var baseCharFunctionality = function(obj) {
 	};
 	obj.reachTarget = function(om) {
 		this.tpos = this.pos;
-		var targetObj = om.get(this.followID);
+		var targetObj = om.Get(this.followID);
 		if(targetObj.action!='dead') {
 			if(this.targetID==this.followID) {
 				this.hit(targetObj);
@@ -101,13 +103,31 @@ var baseCharFunctionality = function(obj) {
 		if(targetObj.action!='dead') {
 			if (this.atkcd<=0) {
 				this.atkcd = this.atkspd;
-				var dmg = Math.abs(this.patk + (Math.random()-0.5)*this.patk*0.2);
-				//console.log('dmg '+dmg);
+				var dmg = Math.round(this.patk + (Math.random()-0.5)*this.patk*0.2);
 				var newHp = targetObj.hp.val-dmg;
 				if (newHp>0) {
 					targetObj.hp.Set(newHp);
 				} else {
 					console.log(this.name + ' has killed ' + targetObj.name);
+					// Get XP
+					this.exp += targetObj.exp;
+					console.log('exp ' + targetObj.exp);
+					if(this.type == 'char')
+						this.lvlUp();
+					// Get loot
+					this.money += Math.round(targetObj.money*(0.75+Math.random()/2));
+					var loot;
+					for(var i = 0; i<targetObj.loot.length; i++) {
+						loot = {q:0, i:0};
+						loot.q = Math.random()<targetObj.loot[i].c;
+						if(loot.q>0) {
+							loot.i = targetObj.loot[i].id;
+							loot.q =  Math.floor(Math.random() * (targetObj.loot[i].qmax - targetObj.loot[i].qmin) + targetObj.loot[i].qmin);
+							this.inv.AddItemInv(loot.i, loot.q);
+						}
+					}
+					this.status = 2;
+
 					targetObj.die();
 					this.loseTarget(targetObj.id);
 				}
@@ -133,13 +153,13 @@ var baseCharFunctionality = function(obj) {
 				this.atkcd -= dt;
 			if(this.action == 'follow') {
 				if(this.followID !== null) {
-					var t = om.get(this.followID);
+					var t = om.Get(this.followID);
 					if(t === null) {
 						this.action = 'idle';
 						this.followID = null;
 					} else {
 						// set target position to target object location
-						this.move(t.pos);
+						this.move(t.pos, om.map);
 					}
 				}
 			}
@@ -157,9 +177,9 @@ var baseCharFunctionality = function(obj) {
 					} else if(length < 5) {//this.v*2*dt) {
 						if(this.path.length>1) {
 							this.path.splice(0,1);
-							this.ppos = map.grid[this.path[0][1]][this.path[0][0]].pos;
-							//this.ppos.x += map.settings.tileW/2;
-							//this.ppos.y += map.settings.tileW/2;
+							this.ppos = om.map.grid[this.path[0][1]][this.path[0][0]].pos;
+							//this.ppos.x += this.map.settings.tileW/2;
+							//this.ppos.y += this.map.settings.tileW/2;
 						} else {
 							this.pos = tmppos;
 
@@ -182,10 +202,40 @@ var baseCharFunctionality = function(obj) {
 			}
 		}
 	};
+	// Update object
+	obj.recalcData = function() {
+		this.stat.patk = this.atrib[0];
+		if(this.)
+		this.stat.pdef = this.atrib[2];
+		this.stat.atkspd = 1000 - this.atrib[1];
+		this.stat.pcrt = this.atrib[1];
+		this.stat.pcrtd = this.atrib[0];
+		this.stat.pacc = this.atrib[1];
+		this.stat.pev = this.atrib[1];
+		this.stat.shr = this.atrib[1];
+		this.stat.shd = this.atrib[0] + this.atrib[2];
+		//this.stat.hp.max = this.atrib[1]*3;
+		this.stat.matk = this.atrib[3];
+		this.stat.mdef = this.atrib[5];
+		this.stat.cstspd = 1000 - this.atrib[4];
+		this.stat.mcrt = this.atrib[4];
+		this.stat.mcrtd = this.atrib[3];
+		this.stat.macc = this.atrib[3];
+		this.stat.mev = this.atrib[4];
+	}
+
+	obj.lvlUp = function() {
+		if (this.exp > this.nextlvl) {
+			this.exp = this.exp - this.nextlvl;
+			this.lvl += 1;
+			this.nextlvl = Math.round(this.nextlvl * 1.3);
+		}
+	}
+	obj.recalcData();
 };
 
 // Character object - the object that will live and move in game
-var CharObj = function(id, img, x, y, name, alliance, sid) {
+var CharObj = function(map, id, img, x, y, name, alliance, sid, classType, gender) {
 	var obj = new BaseObj(id, img, x, y, 'char', alliance, name);
 	// Session ID
 	obj.sid = sid;
@@ -199,16 +249,25 @@ var CharObj = function(id, img, x, y, name, alliance, sid) {
 	obj.speed = 0.05;
 
 	obj.range = 32;
-	baseCharFunctionality(obj);
+	baseCharFunctionality(obj, map);
+	obj.money = 100;
+	obj.exp = 0;
+	obj.nextlvl = 50;
+
+	obj.classType = classType;
+	obj.gender = gender;
+
 	obj.loadout = new inv.Inventory(id, 'l', 49);
 	obj.inv = new inv.Inventory(id, 'i', 49);
+	obj.inv.slot[1].AddItem(1,1);
+	obj.inv.slot[2].AddItem(1,5);
 	obj.decide = function() {
 	};
 	return obj;
 };
 
 // Mob object - non user controlled object that will be fought by users
-var MobObj = function(id, typeID, x, y) {
+var MobObj = function(map, id, typeID, x, y) {
 	var mob = res.mobList.filter(function(o){return o.typeID == typeID})[0];
 	var obj = new BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
 	obj.typeID = typeID;
@@ -218,18 +277,18 @@ var MobObj = function(id, typeID, x, y) {
 	obj.pdef = mob.pdef;
 	obj.atkspd = 1000;
 	obj.exp = mob.exp;
+	obj.money = mob.money;
 	// Absolute object speed
 	obj.speed = mob.speed;
-
 	obj.range = 32;
-	baseCharFunctionality(obj);
+	obj.loot = mob.loot;
+	baseCharFunctionality(obj, map);
 	obj.decide = function() {
 	};
 	return obj;
 };
 
-
-var MobLoad = function(id, typeID, x, y) {
+var MobLoad = function(map, id, typeID, x, y) {
 	var mob = res.mobList.filter(function(o){return o.typeID == typeID})[0];
 	var obj = new BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
 	obj.typeID = typeID;
@@ -241,9 +300,9 @@ var MobLoad = function(id, typeID, x, y) {
 	obj.exp = mob.exp;
 	// Absolute object speed
 	obj.speed = mob.speed;
-
 	obj.range = 32;
-	baseCharFunctionality(obj);
+	obj.loot = mob.loot;
+	baseCharFunctionality(obj, map);
 	obj.decide = function() {
 	};
 	return obj;
@@ -252,53 +311,57 @@ var MobLoad = function(id, typeID, x, y) {
 //---  OBJECT MANAGER   ---
 
 // Takes care of creating objects
-var _ObjManager = {
-	obj: [],
-	nextid: 0,
-	spawnMapI: [0,-1,0,1,1,1,0,-1,-1],
-	spawnMapJ: [0,-1,-1,-1,0,1,1,1,0],
-	addUser: function(icon, x, y, name, alliance, sid) {
-		map.settings.nextSpawn++;
-		if(map.settings.nextSpawn>8) map.settings.nextSpawn = 1;
+class ObjManager {
+	constructor(mapRef) {
+		this.map = mapRef;
+		this.obj = [];
+		this.nextid = 0;
+		this.spawnMapI = [0,-1,0,1,1,1,0,-1,-1];
+		this.spawnMapJ = [0,-1,-1,-1,0,1,1,1,0];
+	}
+
+	AddUser(icon, x, y, name, alliance, sid) {
+		this.map.settings.nextSpawn++;
+		if(this.map.settings.nextSpawn>8) this.map.settings.nextSpawn = 1;
 		var si, sj;
-		si = (map.settings.spawnI+this.spawnMapI[map.settings.nextSpawn])*map.settings.tileW + map.settings.tileW/2;
-		sj = (map.settings.spawnJ+this.spawnMapJ[map.settings.nextSpawn])*map.settings.tileW + map.settings.tileW/2;
-		this.obj.push(new CharObj(this.nextid, icon, si, sj, name, alliance, sid, this));
+		si = (this.map.settings.spawnI+this.spawnMapI[this.map.settings.nextSpawn])*this.map.settings.tileW + this.map.settings.tileW/2;
+		sj = (this.map.settings.spawnJ+this.spawnMapJ[this.map.settings.nextSpawn])*this.map.settings.tileW + this.map.settings.tileW/2;
+		this.obj.push(new CharObj(this.map, this.nextid, icon, si, sj, name, alliance, sid, false, false));
 		this.nextid++;
 		return this.nextid-1;
-	},
-	addMob: function(typeID, x, y) {
-		this.obj.push(new MobObj(this.nextid, typeID, x, y));
+	}
+	AddMob(typeID, x, y) {
+		this.obj.push(new MobObj(this.map, this.nextid, typeID, x, y));
 		this.nextid++;
 		return this.nextid-1;
-	},
-	removeObj: function(id) {
+	}
+	RemoveObj(id) {
 		this.obj.splice(h.indexFindByKey(this.obj, 'id', id),1);
-	},
+	}
 	// Get object by id
-	get: function(id) {
+	Get(id) {
 		return this.obj.filter(function(o){return o.id == id;})[0];
-	},
-	init: function(mapRef) {
-		map = mapRef;
-	},
-	update: function(dt) {
+	}
+	Init(mapRef) {
+		this.map = mapRef;
+	}
+	Update(dt) {
 		for(var i = 0; i < this.obj.length; i++) {
 			if(this.obj[i]) this.obj[i].update(dt, this);
 		}
-		if(res.mobList)for(i = 0; i < map.mobSpawnList.length; i++) {
-			if(!map.mobSpawnList[i].spawned) {
-				this.addMob(
-					map.mobSpawnList[i].id,
-					map.mobSpawnList[i].x * map.settings.tileW + map.settings.tileW/2,
-					map.mobSpawnList[i].y * map.settings.tileW + map.settings.tileW/2)
-				//console.log('Spawn '+  res.mobList.filter(function(o){return o.typeID == map.mobSpawnList[i].id})[0].name);
-				map.mobSpawnList[i].spawned = 1;
+		if(res.mobList)for(i = 0; i < this.map.mobSpawnList.length; i++) {
+			if(!this.map.mobSpawnList[i].spawned) {
+				this.AddMob(
+					this.map.mobSpawnList[i].id,
+					this.map.mobSpawnList[i].x * this.map.settings.tileW + this.map.settings.tileW/2,
+					this.map.mobSpawnList[i].y * this.map.settings.tileW + this.map.settings.tileW/2)
+				//console.log('Spawn '+  res.mobList.filter(function(o){return o.typeID == this.map.mobSpawnList[i].id})[0].name);
+				this.map.mobSpawnList[i].spawned = 1;
 			}
 		}
-	},
-	UserSave: function(id) {
-		var u = this.get(id);
+	}
+	UserSave(id) {
+		var u = this.Get(id);
 		if(u) {
 			fs.writeFile("./saved-data/users/"+u.name+".dat", JSON.stringify(u) , function(err) {
 				if(err) {
@@ -309,8 +372,8 @@ var _ObjManager = {
 		} else {
 			console.log('Save error: user not found!');
 		}
-	},
-	LoadUser: function(sid, nobj) {
+	}
+	LoadUser(sid, nobj) {
 		var obj = new BaseObj(this.nextid, nobj.img, nobj.pos.x, nobj.pos.y, 'char', nobj.alliance, nobj.name);
 		// Session ID
 		obj.sid = sid;
@@ -324,15 +387,24 @@ var _ObjManager = {
 		obj.speed = nobj.speed;
 
 		obj.range = nobj.range;
-		baseCharFunctionality(obj);
+		baseCharFunctionality(obj, this.map);
+
+		obj.money = nobj.money;
+		obj.exp = nobj.exp;
+		obj.nextlvl = nobj.nextlvl;
+
+		obj.classType = nobj.classType;
+		obj.gender = nobj.gender;
+
+
 		obj.loadout = new inv.Inventory(this.nextid, 'l', 49);
 		obj.inv = new inv.Inventory(this.nextid, 'i', 49);
 		for(var i = 0; i<obj.loadout.slot.length; i++)
 			if(nobj.loadout.slot[i].count>0)
-				obj.loadout.slot[i].AddItem(nobj.loadout.slot[i].iid, nobj.loadout.slot[i].name, nobj.loadout.slot[i].count);
+				obj.loadout.slot[i].AddItem(nobj.loadout.slot[i].iid, nobj.loadout.slot[i].count);
 		for(var i = 0; i<obj.inv.slot.length; i++)
 			if(nobj.inv.slot[i].count>0)
-				obj.inv.slot[i].AddItem(nobj.inv.slot[i].iid, nobj.inv.slot[i].name, nobj.inv.slot[i].count);
+				obj.inv.slot[i].AddItem(nobj.inv.slot[i].iid, nobj.inv.slot[i].count);
 		obj.decide = function() {
 		};
 		this.obj.push(obj);
@@ -344,5 +416,5 @@ var _ObjManager = {
 //---  EXPORTS   ---
 
 module.exports = {
-	ObjManager: _ObjManager
+	ObjManager: ObjManager
 };

@@ -1,5 +1,8 @@
 [
 	{
+		"typeID": 0
+	},
+	{
 		"typeID": 1,
 		"level": 1,
 		"name": "Slug",
@@ -12,7 +15,16 @@
 		"img": "m_1.png",
 		"agro": false,
 		"respawn": 60,
-		"exp": 10
+		"exp": 10,
+		"money": 100,
+		"loot": [
+			{
+				"id": 1,
+				"c": 0.8,
+				"qmin": 1,
+				"qmax": 1
+			}
+		]
 	},
 	{
 		"typeID": 2,
@@ -27,7 +39,16 @@
 		"img": "m_2.png",
 		"agro": false,
 		"respawn": 60,
-		"exp": 10
+		"exp": 10,
+		"money": 110,
+		"loot": [
+			{
+				"id": 1,
+				"c": 0.8,
+				"qmin": 1,
+				"qmax": 2
+			}
+		]
 	},
 	{
 		"typeID": 3,
@@ -42,7 +63,16 @@
 		"img": "m_3.png",
 		"agro": true,
 		"respawn": 60,
-		"exp": 11
+		"exp": 11,
+		"money": 130,
+		"loot": [
+			{
+				"id": 3,
+				"c": 0.8,
+				"qmin": 1,
+				"qmax": 2
+			}
+		]
 	},
 	{
 		"typeID": 4,
@@ -57,6 +87,21 @@
 		"img": "m_4.png",
 		"agro": false,
 		"respawn": 60,
-		"exp": 11
+		"exp": 11,
+		"money": 140,
+		"loot": [
+			{
+				"id": 8,
+				"c": 0.8,
+				"qmin": 1,
+				"qmax": 1
+			},
+			{
+				"id": 6,
+				"c": 0.9,
+				"qmin": 1,
+				"qmax": 10
+			}
+		]
 	}
 ]

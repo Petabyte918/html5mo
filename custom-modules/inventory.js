@@ -30,16 +30,25 @@ class Inventory {
 		while(i<to_inv.slot.length && from.count>0) {
 			if(to_inv.slot[i].count == 0 || to_inv.slot[i].name == from.name) {
 				var diff = (from.count+to_inv.slot[i].count<=to_inv.slot[i].maxCount)? from.count : to_inv.slot[i].maxCount-to_inv.slot[i].count;
-				if (to_inv.slot[i].AddItem(from.name,diff)) {
-					this.slot[from.id].RemoveItem(diff);
-				} else {
-					err ='failed to add '+diff;
-				}
+				diff -= to_inv.slot[i].AddItem(from.iid,diff);
+				this.slot[from.id].RemoveItem(diff);
 			}
-			i++
+			i++;
 		}
 		return err;
 	}
+
+	AddItemInv(iid, count) {
+		console.log(iid+' '+count);
+		for (var i = 0; i<this.slot.length; i++) {
+			if(this.slot[i].iid==iid || this.slot[i].iid==0) {
+				count = this.slot[i].AddItem(iid, count);
+				if(count<=0) return 0;
+			}
+		}
+		return count;
+	}
+
 }
 
 function MoveItem(from, to) {
@@ -48,12 +57,9 @@ function MoveItem(from, to) {
 	if(to.count == 0 || to.iid == from.iid) {
 		var diff = (from.count+to.count<=to.maxCount)? from.count : to.maxCount-to.count;
 		//console.log('move qty: '+diff);
-		if (to.AddItem(from.iid,from.name,diff)) {
+		diff -= to.AddItem(from.iid,diff);
 			//console.log('ok, remove');
-			from.RemoveItem(diff);
-		} else {
-			err ='failed to add '+diff;
-		}
+		from.RemoveItem(diff);
 	}
 	return err;
 }
@@ -67,18 +73,21 @@ class Slot {
 		this.maxCount = 100;
 		this.iType = iType;
 	}
-	AddItem(iid, name, count) {
+	AddItem(iid, count) {
 		if(count<=0 || (this.count != 0 && this.iid!=iid))
-			return false;
+			return count;
 		//if(this.itype == 2)
-
 		this.iid = iid;
-		this.name = name;
+
+		this.name = h.objectFindByKey(res.itemList, 'id', iid).name;
 
 		this.count = this.count + count;
-		if(this.count>=this.maxCount)
+		if(this.count>=this.maxCount) {
+			var left = this.count - this.maxCount;
 			this.count = this.maxCount;
-		return true;
+			return left;
+		}
+		return 0;
 	}
 	RemoveItem(count) {
 		if(count > this.count) {

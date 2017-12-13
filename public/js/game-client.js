@@ -172,6 +172,3 @@ function drop(ev) {
 	data.id = targetID;
 	ev.target.appendChild(data);
 }
-
-    sendData('ui', {type:'drop', data:{from:id, to:target.id.substring(2,10)}});
-
