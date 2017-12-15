@@ -205,7 +205,6 @@ var baseCharFunctionality = function(obj, map) {
 	// Update object
 	obj.recalcData = function() {
 		this.stat.patk = this.atrib[0];
-		if(this.)
 		this.stat.pdef = this.atrib[2];
 		this.stat.atkspd = 1000 - this.atrib[1];
 		this.stat.pcrt = this.atrib[1];
@@ -222,6 +221,16 @@ var baseCharFunctionality = function(obj, map) {
 		this.stat.mcrtd = this.atrib[3];
 		this.stat.macc = this.atrib[3];
 		this.stat.mev = this.atrib[4];
+		if(this.loadout) {
+			if(this.loadout.slot[0].iid!=0) {
+				this.stat.patk += res.itemList[this.loadout.slot[0].iid].dmg;
+			}
+			for(var i = 3; i<8; i++) {
+				if(this.loadout.slot[i].iid!=0) {
+					this.stat.pdef += res.itemList[this.loadout.slot[i].iid].def;
+				}
+			}
+		}
 	}
 
 	obj.lvlUp = function() {
@@ -231,7 +240,6 @@ var baseCharFunctionality = function(obj, map) {
 			this.nextlvl = Math.round(this.nextlvl * 1.3);
 		}
 	}
-	obj.recalcData();
 };
 
 // Character object - the object that will live and move in game
@@ -407,6 +415,9 @@ class ObjManager {
 				obj.inv.slot[i].AddItem(nobj.inv.slot[i].iid, nobj.inv.slot[i].count);
 		obj.decide = function() {
 		};
+
+		obj.recalcData();
+
 		this.obj.push(obj);
 		this.nextid++;
 		return this.nextid-1;

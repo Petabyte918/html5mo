@@ -172,7 +172,7 @@ io.on('connection', (socket) => {
 						if (toobj.type == 'char') {
 							if (from[1] == 'l' || to[1] == 'l') {
 								toobj.status = 2;
-								to.recalcData();
+								toobj.recalcData();
 							} else {
 								dto.SendTo(to[0],'update_inv',JSON.stringify({l:fromobj.loadout,i:fromobj.inv}));
 							}
