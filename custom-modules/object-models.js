@@ -81,7 +81,7 @@ var baseCharFunctionality = function(obj, map) {
 		var targetObj = om.Get(this.followID);
 		if(targetObj.action!='dead') {
 			if(this.targetID==this.followID) {
-				this.hit(targetObj);
+				this.hit(targetObj, om);
 			}
 		} else {
 			this.loseTarget(this.followID);
@@ -99,7 +99,7 @@ var baseCharFunctionality = function(obj, map) {
 		this.targetID = id;
 		this.action = 'attack';
 	};
-	obj.hit = function(targetObj) {
+	obj.hit = function(targetObj, om) {
 		if(targetObj.action!='dead') {
 			if (this.atkcd<=0) {
 				this.atkcd = this.atkspd;
@@ -128,7 +128,7 @@ var baseCharFunctionality = function(obj, map) {
 					}
 					this.status = 2;
 
-					targetObj.die();
+					targetObj.die(om);
 					this.loseTarget(targetObj.id);
 				}
 				targetObj.status = 2;
@@ -137,12 +137,20 @@ var baseCharFunctionality = function(obj, map) {
 			this.loseTarget(targetObj.id);
 		}
 	};
-	obj.die = function() {
+	obj.die = function(om) {
 		this.hp.Set(0);
 		this.targetID = null;
 		this.followID = null;
 		this.action = 'dead';
 		this.status = 2;
+
+		if(this.type == 'mob') {
+			var spawn = h.objectFindByKey(om.map.mobSpawnList, 'spawned', this.id);
+			if(spawn) {
+				spawn.spawnAt = (new Date()).getTime() + res.mobList[this.typeID].respawn*1000;
+				spawn.spawned = 0;
+			}
+		}
 	};
 	// Update object
 	obj.update = function(dt, om) {
@@ -355,16 +363,17 @@ class ObjManager {
 	}
 	Update(dt) {
 		for(var i = 0; i < this.obj.length; i++) {
-			if(this.obj[i]) this.obj[i].update(dt, this);
+			if(this.obj[i])
+				this.obj[i].update(dt, this);
 		}
-		if(res.mobList)for(i = 0; i < this.map.mobSpawnList.length; i++) {
-			if(!this.map.mobSpawnList[i].spawned) {
-				this.AddMob(
-					this.map.mobSpawnList[i].id,
-					this.map.mobSpawnList[i].x * this.map.settings.tileW + this.map.settings.tileW/2,
-					this.map.mobSpawnList[i].y * this.map.settings.tileW + this.map.settings.tileW/2)
-				//console.log('Spawn '+  res.mobList.filter(function(o){return o.typeID == this.map.mobSpawnList[i].id})[0].name);
-				this.map.mobSpawnList[i].spawned = 1;
+		if(res.mobList) for(i = 0; i < this.map.mobSpawnList.length; i++) {
+			if(this.map.mobSpawnList[i].spawned==0) {
+				if(this.map.mobSpawnList[i].spawnAt < (new Date()).getTime()) {
+					this.map.mobSpawnList[i].spawned =
+						this.AddMob(this.map.mobSpawnList[i].id,
+									this.map.mobSpawnList[i].x * this.map.settings.tileW + this.map.settings.tileW/2,
+									this.map.mobSpawnList[i].y * this.map.settings.tileW + this.map.settings.tileW/2);
+				}
 			}
 		}
 	}

@@ -14,7 +14,7 @@
 		"alliance": 2,
 		"img": "m_1.png",
 		"agro": false,
-		"respawn": 60,
+		"respawn": 10,
 		"exp": 10,
 		"money": 100,
 		"loot": [
@@ -38,7 +38,7 @@
 		"alliance": 2,
 		"img": "m_2.png",
 		"agro": false,
-		"respawn": 60,
+		"respawn": 20,
 		"exp": 10,
 		"money": 110,
 		"loot": [
@@ -62,7 +62,7 @@
 		"alliance": 2,
 		"img": "m_3.png",
 		"agro": true,
-		"respawn": 60,
+		"respawn": 30,
 		"exp": 11,
 		"money": 130,
 		"loot": [
@@ -86,7 +86,7 @@
 		"alliance": 2,
 		"img": "m_4.png",
 		"agro": false,
-		"respawn": 60,
+		"respawn": 30,
 		"exp": 11,
 		"money": 140,
 		"loot": [
