@@ -17,6 +17,12 @@ var BarVal = function(val,max,regen) {
 		this.val = val;
 		this.p = Math.abs(val/this.max*100);
 	};
+	this.Regen = function(dt) {
+		if(this.val<this.max) {
+			this.Set(this.val + (this.reg*dt/1000));
+			return true;
+		}
+	}
 	this.Set(val);
 	return this;
 };
@@ -44,6 +50,7 @@ var baseCharFunctionality = function(obj, map) {
 	obj.attacking = false;
 	obj.atkcd = 0;
 	obj.path = [];
+	obj.agro = [];
 	// Movement speed vector
 	obj.v = h.V2(0,0);
 	obj.tpos = obj.pos;
@@ -97,16 +104,26 @@ var baseCharFunctionality = function(obj, map) {
 	};
 	obj.attack = function(id) {
 		this.targetID = id;
-		this.action = 'attack';
+		this.followID = id;
+		this.action = 'follow';
 	};
 	obj.hit = function(targetObj, om) {
 		if(targetObj.action!='dead') {
 			if (this.atkcd<=0) {
-				this.atkcd = this.atkspd;
-				var dmg = Math.round(this.patk + (Math.random()-0.5)*this.patk*0.2);
+				this.atkcd = this.stat.atkspd;
+				var dmg = Math.round(this.stat.patk + (Math.random()-0.5)*this.stat.patk*0.2);
 				var newHp = targetObj.hp.val-dmg;
 				if (newHp>0) {
 					targetObj.hp.Set(newHp);
+					var agroId = h.indexFindByKey(targetObj.agro, 'id', this.id);
+					if(targetObj.agro[agroId]) {
+						targetObj.agro[agroId].val+=dmg;
+					} else {
+						targetObj.agro.push({'id':this.id, 'val':dmg});
+					}
+					if(targetObj.type == 'mob' && (targetObj.action == 'idle' || targetObj.action == 'move')) {
+						targetObj.attack(this.id);	
+					}
 				} else {
 					console.log(this.name + ' has killed ' + targetObj.name);
 					// Get XP
@@ -117,15 +134,16 @@ var baseCharFunctionality = function(obj, map) {
 					// Get loot
 					this.money += Math.round(targetObj.money*(0.75+Math.random()/2));
 					var loot;
-					for(var i = 0; i<targetObj.loot.length; i++) {
-						loot = {q:0, i:0};
-						loot.q = Math.random()<targetObj.loot[i].c;
-						if(loot.q>0) {
-							loot.i = targetObj.loot[i].id;
-							loot.q =  Math.floor(Math.random() * (targetObj.loot[i].qmax - targetObj.loot[i].qmin) + targetObj.loot[i].qmin);
-							this.inv.AddItemInv(loot.i, loot.q);
+					if(targetObj.loot)
+						for(var i = 0; i<targetObj.loot.length; i++) {
+							loot = {q:0, i:0};
+							loot.q = Math.random()<targetObj.loot[i].c;
+							if(loot.q>0) {
+								loot.i = targetObj.loot[i].id;
+								loot.q =  Math.floor(Math.random() * (targetObj.loot[i].qmax - targetObj.loot[i].qmin) + targetObj.loot[i].qmin);
+								this.inv.AddItemInv(loot.i, loot.q);
+							}
 						}
-					}
 					this.status = 2;
 
 					targetObj.die(om);
@@ -148,7 +166,7 @@ var baseCharFunctionality = function(obj, map) {
 			var spawn = h.objectFindByKey(om.map.mobSpawnList, 'spawned', this.id);
 			if(spawn) {
 				spawn.spawnAt = (new Date()).getTime() + res.mobList[this.typeID].respawn*1000;
-				spawn.spawned = 0;
+				spawn.spawned = -1;
 			}
 		}
 	};
@@ -162,7 +180,7 @@ var baseCharFunctionality = function(obj, map) {
 			if(this.action == 'follow') {
 				if(this.followID !== null) {
 					var t = om.Get(this.followID);
-					if(t === null) {
+					if(t == null) {
 						this.action = 'idle';
 						this.followID = null;
 					} else {
@@ -196,8 +214,8 @@ var baseCharFunctionality = function(obj, map) {
 						}
 					} else {
 						// normalize vector
-						this.v.x = vect.x/length*this.speed;
-						this.v.y = vect.y/length*this.speed;
+						this.v.x = vect.x/length*this.stat.spd;
+						this.v.y = vect.y/length*this.stat.spd;
 						this.pos.x += this.v.x*dt;
 						this.pos.y += this.v.y*dt;
 
@@ -207,6 +225,18 @@ var baseCharFunctionality = function(obj, map) {
 				} else {
 					this.action = 'idle';
 				}
+			}
+			if(this.action == 'idle') {
+				if(this.hp.Regen(dt*1.5)) this.status = 2;
+				if(this.type == 'mob') {
+					var time = (new Date()).getTime();
+					if(this.nextDecision< time) {
+						this.decide();
+						this.nextDecision = time + 1000;
+					}
+				} 
+			} else {
+				if(this.hp.Regen(dt)) this.status = 2;
 			}
 		}
 	};
@@ -229,6 +259,9 @@ var baseCharFunctionality = function(obj, map) {
 		this.stat.mcrtd = this.atrib[3];
 		this.stat.macc = this.atrib[3];
 		this.stat.mev = this.atrib[4];
+
+		this.stat.spd = 0.05;
+
 		if(this.loadout) {
 			if(this.loadout.slot[0].iid!=0) {
 				this.stat.patk += res.itemList[this.loadout.slot[0].iid].dmg;
@@ -258,11 +291,6 @@ var CharObj = function(map, id, img, x, y, name, alliance, sid, classType, gende
 
 	obj.lvl = 1;
 	obj.hp = new BarVal(150,150,1);
-	obj.patk = 10;
-	obj.pdef = 10;
-	obj.atkspd = 1000;
-	// Absolute object speed
-	obj.speed = 0.05;
 
 	obj.range = 32;
 	baseCharFunctionality(obj, map);
@@ -278,7 +306,9 @@ var CharObj = function(map, id, img, x, y, name, alliance, sid, classType, gende
 	obj.inv.slot[1].AddItem(1,1);
 	obj.inv.slot[2].AddItem(1,5);
 	obj.decide = function() {
+		console.log('char.decide');
 	};
+	obj.recalcData();
 	return obj;
 };
 
@@ -289,17 +319,31 @@ var MobObj = function(map, id, typeID, x, y) {
 	obj.typeID = typeID;
 	obj.lvl = mob.level;
 	obj.hp = new BarVal(mob.hp,mob.hp,mob.hpreg);
-	obj.patk = mob.patk;
-	obj.pdef = mob.pdef;
-	obj.atkspd = 1000;
+	obj.stat = {};
+	obj.stat.patk = mob.patk;
+	obj.stat.pdef = mob.pdef;
+	obj.stat.atkspd = 1000;
+	obj.stat.spd = mob.speed;
 	obj.exp = mob.exp;
 	obj.money = mob.money;
-	// Absolute object speed
-	obj.speed = mob.speed;
+	obj.nextDecision = 0;
+	
 	obj.range = 32;
 	obj.loot = mob.loot;
 	baseCharFunctionality(obj, map);
-	obj.decide = function() {
+	obj.decide = function() { //mob obj decide
+		if(this.agro.length>0) {
+			if(this.agro.length>1) {
+				this.agro.sort(function (a, b) {
+					return a.val - b.val;
+				});
+			}
+			this.attack(this.agro[0].id);
+		} else {
+			if(this.action == 'idle' && this.nextDecision<(new Date()).getTime()) {
+				this.nextDecision = (new Date()).getTime() + 10000;	
+			}
+		}
 	};
 	return obj;
 };
@@ -310,17 +354,14 @@ var MobLoad = function(map, id, typeID, x, y) {
 	obj.typeID = typeID;
 	obj.lvl = mob.level;
 	obj.hp = new BarVal(mob.hp,mob.hp,mob.hpreg);
-	obj.patk = mob.patk;
-	obj.pdef = mob.pdef;
-	obj.atkspd = 1000;
+	obj.stat.patk = mob.patk;
+	obj.stat.pdef = mob.pdef;
+	obj.stat.atkspd = 1000;
+	obj.stat.spd = mob.speed;
 	obj.exp = mob.exp;
-	// Absolute object speed
-	obj.speed = mob.speed;
 	obj.range = 32;
 	obj.loot = mob.loot;
 	baseCharFunctionality(obj, map);
-	obj.decide = function() {
-	};
 	return obj;
 };
 
@@ -363,11 +404,12 @@ class ObjManager {
 	}
 	Update(dt) {
 		for(var i = 0; i < this.obj.length; i++) {
-			if(this.obj[i])
+			if(this.obj[i]) {
 				this.obj[i].update(dt, this);
+			}
 		}
 		if(res.mobList) for(i = 0; i < this.map.mobSpawnList.length; i++) {
-			if(this.map.mobSpawnList[i].spawned==0) {
+			if(this.map.mobSpawnList[i].spawned==-1) {
 				if(this.map.mobSpawnList[i].spawnAt < (new Date()).getTime()) {
 					this.map.mobSpawnList[i].spawned =
 						this.AddMob(this.map.mobSpawnList[i].id,
@@ -396,12 +438,7 @@ class ObjManager {
 		obj.sid = sid;
 
 		obj.lvl = nobj.lvl;
-		obj.hp = new BarVal(nobj.hp.val,nobj.hp.max,nobj.hp.regen);
-		obj.patk = nobj.patk;
-		obj.pdef = nobj.pdef;
-		obj.atkspd = nobj.atkspd;
-		// Absolute object speed
-		obj.speed = nobj.speed;
+		obj.hp = new BarVal(nobj.hp.val,nobj.hp.max,nobj.hp.reg);
 
 		obj.range = nobj.range;
 		baseCharFunctionality(obj, this.map);
@@ -423,6 +460,7 @@ class ObjManager {
 			if(nobj.inv.slot[i].count>0)
 				obj.inv.slot[i].AddItem(nobj.inv.slot[i].iid, nobj.inv.slot[i].count);
 		obj.decide = function() {
+			console.log('user.decide');
 		};
 
 		obj.recalcData();
