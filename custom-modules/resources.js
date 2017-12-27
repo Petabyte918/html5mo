@@ -7,6 +7,9 @@ var fs = require('fs');
 var mobList = JSON.parse(fs.readFileSync('./resources/mobs.data', 'utf8'));
 exports.mobList = mobList;
 
+var npcList = JSON.parse(fs.readFileSync('./resources/npcs.data', 'utf8'));
+exports.npcList = npcList;
+
 var itemList = JSON.parse(fs.readFileSync('./resources/items.data', 'utf8'));
 exports.itemList = itemList;
 

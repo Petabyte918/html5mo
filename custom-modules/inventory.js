@@ -39,10 +39,19 @@ class Inventory {
 	}
 
 	AddItemInv(iid, count) {
-		console.log(iid+' '+count);
 		for (var i = 0; i<this.slot.length; i++) {
 			if(this.slot[i].iid==iid || this.slot[i].iid==0) {
 				count = this.slot[i].AddItem(iid, count);
+				if(count<=0) return 0;
+			}
+		}
+		return count;
+	}
+
+	RemoveItemInv(iid, count) {
+		for (var i = 0; i<this.slot.length; i++) {
+			if(this.slot[i].iid==iid) {
+				count = this.slot[i].RemoveItem(iid, count);
 				if(count<=0) return 0;
 			}
 		}
@@ -91,13 +100,16 @@ class Slot {
 	}
 	RemoveItem(count) {
 		if(count > this.count) {
-			return false;
+			this.iid = 0;
+			this.count = 0;
+			this.name = "";
+			return count-this.count;
 		} else if (count == this.count) {
 			this.iid = 0;
 			this.name = "";
 		}
 		this.count = this.count - count;
-		return true;
+		return 0;
 	}
 }
 

@@ -5,19 +5,23 @@ var http = require('http').Server(ex);
 var io = require('socket.io')(http);
 var fs = require("fs");
 
+var g = require('./custom-modules/globals.js').Globals;
 var settings = require('./custom-modules/settings.js').Settings();
 var res = require('./custom-modules/resources.js');
 var h = require('./custom-modules/helpers.js');
 
 var map = require('./custom-modules/map.js');
 var inv = require('./custom-modules/inventory.js');
-var om = require('./custom-modules/object-models.js');
+var om = require('./custom-modules/object-manager.js');
 
-var objManager = new om.ObjManager(map);
 var sm = new (require('./custom-modules/session-manager.js')).SessionManager();
+g.sm = sm;
+var objManager = new om.ObjManager(map);
+g.om = objManager;
 var dto = new (require('./custom-modules/dto.js')).DTO(io, sm);
+g.dto = dto;
 var app = new (require('./custom-modules/app.js')).App(dto, objManager);
-
+g.app = app;
 app.Start();
 
 io.on('connection', (socket) => {
@@ -56,6 +60,7 @@ io.on('connection', (socket) => {
 					mapdata: JSON.stringify(app.map.grid),
 					pfmatrix: JSON.stringify(app.map.pf.pfMatrix),
 					itemdata: JSON.stringify(res.itemList),
+					npcdata: JSON.stringify(res.npcList),
 					mobdata: JSON.stringify(res.mobList)
 				}
 			});
@@ -66,7 +71,7 @@ io.on('connection', (socket) => {
 				sid: -1,
 				created: false,
 				data: {
-					error: 'Login failed: user '+ message.u+' does not exist'
+					error: 'Login failed: user ' + message.u + ' does not exist'
 				}
 			});
 		}
@@ -74,9 +79,9 @@ io.on('connection', (socket) => {
   });
   socket.on('cli-register', (message) => {
 	if(message.u != '') {
-		var file = "./saved-data/users/"+message.u+".dat";
+		var file = "./saved-data/users/" + message.u + ".dat";
 		if(fs.existsSync(file)) {
-			console.log('user '+ message.u +' already exist!');
+			console.log('user ' + message.u + ' already exist!');
 			socket.emit('register-confirm', {
 				sid: -1,
 				error: 'user ' + message.u + ' already exists!'
@@ -86,7 +91,7 @@ io.on('connection', (socket) => {
 			socket.room = 'authenticated';
 			socket.join(socket.room);
 			socket.name = message.u;
-			io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user '+ message.u+' connected', time: Date.now()});
+			io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user '+ message.u + ' connected', time: Date.now()});
 			socket.emit('register-confirm', {
 				sid: 0
 			});
@@ -103,7 +108,9 @@ io.on('connection', (socket) => {
 			objdata: JSON.stringify(objManager.obj),
 			mapdata: JSON.stringify(app.map.grid),
 			pfmatrix: JSON.stringify(app.map.pf.pfMatrix),
-			itemdata: JSON.stringify(res.itemList)
+			itemdata: JSON.stringify(res.itemList),
+			npcdata: JSON.stringify(res.npcList),
+			mobdata: JSON.stringify(res.mobList)
 		}
 	});
 	console.log('user of type '+message.c+' created');
@@ -120,13 +127,12 @@ io.on('connection', (socket) => {
 				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
 					t =  objManager.Get(data.data);
 				if(t) {
-					if(obj.alliance == t.alliance) {
+					if(obj.alliance == t.alliance || t.alliance == 0) {
 						console.log(obj.name+' follow '+t.name);
 						obj.follow(t.id);
 					} else {
 						console.log(obj.name+' attack '+t.name);
 						obj.attack(t.id);
-						obj.follow(t.id);
 					}
 				}
 				//console.log(obj.name+' target '+t.name);
@@ -181,6 +187,27 @@ io.on('connection', (socket) => {
 						fromobj.status = 2;
 						toobj.status = 2;
 					}
+				}
+				break;
+			case 'buy':
+				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
+					data = data.data,
+					item = res.itemList[data.iid],
+					npc = res.npcList[data.npc],
+					price = item.value*data.qty*npc.priceMod;
+					
+				if(price<obj.money) {obj.inv.AddItemInv(data.iid,data.qty); obj.money -= price; obj.status = 2;} else {console.log('not enough money '+price);}
+				break;
+			case 'sell':
+				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
+					data = data.data,
+					item = res.itemList[data.iid],
+					npc = res.npcList[data.npc],
+					diff = data.qty - obj.inv.RemoveItemInv(data.iid, data.qty);
+					
+				if (diff!=0) {
+					obj.money += item.value*(diff)/npc.priceMod;
+					obj.status = 2;
 				}
 				break;
 			default:
