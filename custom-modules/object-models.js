@@ -11,7 +11,7 @@ var inv = require('./inventory.js');
 
 // Character object - the object that will live and move in game
 var CharCreate = function(map, id, img, x, y, name, alliance, sid, classType, gender) {
-	var obj = new baseModels.BaseObj(id, img, x, y, 'char', alliance, name);
+	var obj = new baseModels.BaseObj(id, img, x, y, 'user', alliance, name);
 	// Session ID
 	obj.sid = sid;
 

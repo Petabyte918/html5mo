@@ -119,14 +119,19 @@ io.on('connection', (socket) => {
 
 	// Socket user interface events
 	socket.on('ui', function(data) {
+		var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid);
+		if (obj.action =="dead") {
+			if(data.type=='respawn')
+				objManager.RespawnUser(obj.id);
+			return;
+		}
+
 		switch(data.type) {
 			case 'mcl':
-				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid);
 				obj.moveTo(h.V2(data.data.x,data.data.y),app.map);
 				break;
 			case 'mclo':
-				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
-					t =  objManager.Get(data.data);
+				var t =  objManager.Get(data.data);
 				if(t) {
 					if(obj.alliance == t.alliance || t.alliance == 0) {
 						console.log(obj.name+' follow '+t.name);
@@ -191,8 +196,7 @@ io.on('connection', (socket) => {
 				}
 				break;
 			case 'buy':
-				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
-					data = data.data,
+				var data = data.data,
 					item = res.itemList[data.iid],
 					npc = res.npcList[data.npc],
 					price = item.value*data.qty*npc.priceMod;
@@ -200,8 +204,7 @@ io.on('connection', (socket) => {
 				if(price<obj.money) {obj.inv.AddItemInv(data.iid,data.qty); obj.money -= price; obj.status = 2;} else {console.log('not enough money '+price);}
 				break;
 			case 'sell':
-				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
-					data = data.data,
+				var data = data.data,
 					item = res.itemList[data.iid],
 					npc = res.npcList[data.npc],
 					diff = data.qty - obj.inv.RemoveItemInv(data.iid, data.qty);

@@ -19,6 +19,16 @@ class ObjManager {
 		this.nextid = 0;
 	}
 
+	RespawnUser(id) {
+		var obj = this.Get(id);
+		obj.action = 'idle';
+		obj.hp.Set(obj.hp.max/2);
+		var s = this.map.NextSpawn();
+		obj.pos = new h.V2(s.i,s.j);
+		obj.curTile();
+		obj.status = 2;
+	};
+
 	AddUser(icon, x, y, name, alliance, sid) {
 		var s = this.map.NextSpawn();
 		this.obj.push(new objModels.CharCreate(this.map, this.nextid, icon, s.i, s.j, name, alliance, sid, false, false));
@@ -86,7 +96,7 @@ class ObjManager {
 		}
 	}
 	LoadUser(sid, nobj) {
-		var obj = new baseModels.BaseObj(this.nextid, nobj.img, nobj.pos.x, nobj.pos.y, 'char', nobj.alliance, nobj.name);
+		var obj = new baseModels.BaseObj(this.nextid, nobj.img, nobj.pos.x, nobj.pos.y, 'user', nobj.alliance, nobj.name);
 		// Session ID
 		obj.sid = sid;
 
@@ -104,6 +114,9 @@ class ObjManager {
 		obj.classType = nobj.classType;
 		obj.gender = nobj.gender;
 		obj.quest = nobj.quest;
+
+		if(nobj.action == 'dead')
+			obj.action = 'dead';
 
 		obj.loadout = new inv.Inventory(this.nextid, 'l', 49);
 		obj.inv = new inv.Inventory(this.nextid, 'i', 49);

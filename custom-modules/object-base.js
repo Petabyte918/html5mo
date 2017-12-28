@@ -143,7 +143,7 @@ var baseCharFunctionality = function(obj, map, dto) {
 					// Get XP
 					this.exp += targetObj.exp;
 					console.log('exp ' + targetObj.exp);
-					if(this.type == 'char')
+					if(this.type == 'user')
 						this.lvlUp();
 					// Get loot
 					this.money += Math.round(targetObj.money*(0.75+Math.random()/2));

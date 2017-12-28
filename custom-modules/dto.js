@@ -34,7 +34,7 @@ class DTO {
 			if(this.objectsRef[i].status == 1) {
 				cd.push({id: this.objectsRef[i].id, status: 1});
 			} else if(this.objectsRef[i].status == 2) {
-				if(this.objectsRef[i].action == 'dead') {
+				if(this.objectsRef[i].action == 'dead' && this.objectsRef[i].type != 'user') {
 					removeList.push(this.objectsRef[i].id);
 					console.log(this.objectsRef[i].name+' is dead '+ this.objectsRef[i].status);
 					cd.push({id: this.objectsRef[i].id, status: 0, data: this.objectsRef[i]});
