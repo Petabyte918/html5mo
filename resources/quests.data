@@ -1,0 +1,39 @@
+[
+	{
+		"id": 0
+	},
+	{
+		"id": 1,
+		"npc": 1,
+		"minLevel": 2,
+		"name": "Pest Control I",
+		"repeat": 1,
+		"exp": 150,
+		"money": 300,
+		"loot": [{"iid":2, "qty":1}],
+		"textStart": "Would you help me with some trouble?",
+		"textDetails": "Kill 5 slimes. They ravage my wonderfull cabages!",
+		"textComplete": "Well done, my cabages are safe. Here is your reward.",
+		"preq": 0,
+		"req":[
+			{"type": "kill", "mobID": 1, "qty": 5}
+		]
+	},
+	{
+		"id": 1,
+		"npc": 1,
+		"minLevel": 3,
+		"name": "Pest Control II",
+		"repeat": 1,
+		"exp": 200,
+		"money": 500,
+		"loot": [{"iid":5, "qty":1}],
+		"textStart": "Would you help me again?",
+		"textDetails": "Kill 5 racoons please, they are making me crazy!",
+		"textComplete": "Well done, they will not pest around my farm. Here is your reward. Go on now, I have things to do.",
+		"preq": 1,
+		"req":[
+			{"type": "kill", "mobID": 2, "qty": 5}
+		]
+	}
+]

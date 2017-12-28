@@ -17,17 +17,11 @@ class ObjManager {
 		this.map = mapRef;
 		this.obj = [];
 		this.nextid = 0;
-		this.spawnMapI = [0,-1,0,1,1,1,0,-1,-1];
-		this.spawnMapJ = [0,-1,-1,-1,0,1,1,1,0];
 	}
 
 	AddUser(icon, x, y, name, alliance, sid) {
-		this.map.settings.nextSpawn++;
-		if(this.map.settings.nextSpawn>8) this.map.settings.nextSpawn = 1;
-		var si, sj;
-		si = (this.map.settings.spawnI+this.spawnMapI[this.map.settings.nextSpawn])*this.map.settings.tileW + this.map.settings.tileW/2;
-		sj = (this.map.settings.spawnJ+this.spawnMapJ[this.map.settings.nextSpawn])*this.map.settings.tileW + this.map.settings.tileW/2;
-		this.obj.push(new objModels.CharCreate(this.map, this.nextid, icon, si, sj, name, alliance, sid, false, false));
+		var s = this.map.NextSpawn();
+		this.obj.push(new objModels.CharCreate(this.map, this.nextid, icon, s.i, s.j, name, alliance, sid, false, false));
 		this.nextid++;
 		return this.nextid-1;
 	}
@@ -100,6 +94,7 @@ class ObjManager {
 		obj.hp = new baseModels.BarVal(nobj.hp.val,nobj.hp.max,nobj.hp.reg);
 
 		obj.range = nobj.range;
+		obj.atrib = nobj.atrib;
 		baseModels.baseCharFunctionality(obj, this.map);
 
 		obj.money = nobj.money;
@@ -108,7 +103,7 @@ class ObjManager {
 
 		obj.classType = nobj.classType;
 		obj.gender = nobj.gender;
-
+		obj.quest = nobj.quest;
 
 		obj.loadout = new inv.Inventory(this.nextid, 'l', 49);
 		obj.inv = new inv.Inventory(this.nextid, 'i', 49);

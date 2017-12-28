@@ -19,6 +19,7 @@ var CharCreate = function(map, id, img, x, y, name, alliance, sid, classType, ge
 	obj.hp = new baseModels.BarVal(150,150,1);
 
 	obj.range = 32;
+	obj.atrib = [10,10,10,10,10,10];
 	baseModels.baseCharFunctionality(obj, map);
 	obj.money = 100;
 	obj.exp = 0;
@@ -26,11 +27,10 @@ var CharCreate = function(map, id, img, x, y, name, alliance, sid, classType, ge
 
 	obj.classType = classType;
 	obj.gender = gender;
+	obj.quest = [];
 
 	obj.loadout = new inv.Inventory(id, 'l', 49);
 	obj.inv = new inv.Inventory(id, 'i', 49);
-	obj.inv.slot[1].AddItem(1,1);
-	obj.inv.slot[2].AddItem(1,5);
 	obj.decide = function() {
 		console.log('char.decide');
 	};
@@ -91,6 +91,7 @@ var NPCLoad = function(map, id, typeID, x, y) {
 	obj.money = npc.money;
 	obj.nextDecision = 0;
 	
+	obj.quests = npc.quests;
 	obj.range = 32;
 	obj.loot = npc.loot;
 	obj.sell = npc.sell;

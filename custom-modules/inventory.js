@@ -49,9 +49,9 @@ class Inventory {
 	}
 
 	RemoveItemInv(iid, count) {
-		for (var i = 0; i<this.slot.length; i++) {
+		for (var i = this.slot.length-1; i>=0; i--) {
 			if(this.slot[i].iid==iid) {
-				count = this.slot[i].RemoveItem(iid, count);
+				count = this.slot[i].RemoveItem(count);
 				if(count<=0) return 0;
 			}
 		}
@@ -108,7 +108,7 @@ class Slot {
 			this.iid = 0;
 			this.name = "";
 		}
-		this.count = this.count - count;
+		this.count -= count;
 		return 0;
 	}
 }

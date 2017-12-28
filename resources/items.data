@@ -80,5 +80,25 @@
 		"value": 20,
 		"pdef": 3,
 		"img": "i_8.png"
+	},
+	{
+		"id": 9,
+		"iType": 2,
+		"iSub": 7,
+		"iSlot": 6,
+		"name": "plate gountlets",
+		"value": 10,
+		"pdef": 1,
+		"img": "i_9.png"
+	},
+	{
+		"id": 10,
+		"iType": 2,
+		"iSub": 8,
+		"iSlot": 5,
+		"name": "plate legs",
+		"value": 20,
+		"pdef": 3,
+		"img": "i_10.png"
 	}
 ]

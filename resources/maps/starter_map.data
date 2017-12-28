@@ -16,7 +16,7 @@
 		{"id":  4, "x": 8,  "y": 4, "spawned": -1, "spawnAt": 0}
 	],
 	"npcSpawnList": [
-		{"id":  1, "x": 2, "y": 3, "spawned": -1, "spawnAt": 0}
+		{"id":  1, "x": 2, "y": 4, "spawned": -1, "spawnAt": 0}
 	],
 	"tileData": [[{
 		"id": 0,

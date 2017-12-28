@@ -14,6 +14,8 @@ function InitMap(_this) {
 		spawnJ: 1,
 		nextSpawn: 1
 	}
+	_this.spawnMapI = [0,-1,0,1,1,1,0,-1,-1];
+	_this.spawnMapJ = [0,-1,-1,-1,0,1,1,1,0];
 	_this.pf = {
 		pfMatrix : [],
 		pfGrid : {},
@@ -21,6 +23,14 @@ function InitMap(_this) {
 			allowDiagonal: true,
 			dontCrossCorners: true
 		})
+	}
+	_this.NextSpawn = function() {
+		this.settings.nextSpawn++;
+		if(this.settings.nextSpawn>8) this.settings.nextSpawn = 1;
+		return {
+			i: (this.settings.spawnI+this.spawnMapI[this.settings.nextSpawn])*this.settings.tileW + this.settings.tileW/2,
+			j: (this.settings.spawnJ+this.spawnMapJ[this.settings.nextSpawn])*this.settings.tileW + this.settings.tileW/2
+		};
 	}
 }
 

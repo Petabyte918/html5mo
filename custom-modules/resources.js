@@ -13,6 +13,9 @@ exports.npcList = npcList;
 var itemList = JSON.parse(fs.readFileSync('./resources/items.data', 'utf8'));
 exports.itemList = itemList;
 
+var questList = JSON.parse(fs.readFileSync('./resources/quests.data', 'utf8'));
+exports.questList = questList;
+
 // itype: 1 = crafting, 2 = char item 3 = consumable, 4 = quest, 5 = etc
 
 // 1 = main hand

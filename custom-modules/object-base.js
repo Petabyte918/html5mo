@@ -42,7 +42,6 @@ var BaseObj = function(id, img, x, y, type, alliance, name) {
 };
 
 var baseCharFunctionality = function(obj, map, dto) {
-	obj.atrib = [30,30,30,30,30,30];
 	obj.stat = {};
 	obj.targetID;
 	obj.followID;

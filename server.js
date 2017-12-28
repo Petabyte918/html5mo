@@ -25,98 +25,99 @@ g.app = app;
 app.Start();
 
 io.on('connection', (socket) => {
-  console.log('session started');
-  socket.room = 'unauthenticated';
-  socket.join(socket.room);
-  socket.on('disconnect', function() {
-    console.log('session disconnected');
-	if(sm.CloseSession(socket, objManager))
-		io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user disconnected', time: Date.now()});
-	socket.leave(socket.room);
-  });
-
-  socket.on('cli-message', (message) => {
-    io.sockets.in(socket.room).emit('message', {
-		user : 'user',//data.name,
-		text : message,
-		timestamp : Date.now()
-	});
-  });
-  socket.on('cli-login', (message) => {
-	if(message.u != '') {
+	console.log('session started');
+	socket.room = 'unauthenticated';
+	socket.join(socket.room);
+	socket.on('disconnect', function() {
+		console.log('session disconnected');
+		if(sm.CloseSession(socket, objManager))
+			io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user disconnected', time: Date.now()});
 		socket.leave(socket.room);
-		socket.room = 'authenticated';
-		socket.join(socket.room);
-		var id = sm.LoadUser(message.u,socket,objManager);
-		if(id>=0) {
-			socket.name = message.u;
-			io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user '+ message.u+' connected', time: Date.now()});
-			socket.emit('login-confirm', {
-				id : id,
-				sid: sm.nextSes-1,
-				created: true,
-				data: {
-					objdata: JSON.stringify(objManager.obj),
-					mapdata: JSON.stringify(app.map.grid),
-					pfmatrix: JSON.stringify(app.map.pf.pfMatrix),
-					itemdata: JSON.stringify(res.itemList),
-					npcdata: JSON.stringify(res.npcList),
-					mobdata: JSON.stringify(res.mobList)
-				}
-			});
-			console.log('user authenticated');
-		} else {
-			socket.emit('login-confirm', {
-				id : -1,
-				sid: -1,
-				created: false,
-				data: {
-					error: 'Login failed: user ' + message.u + ' does not exist'
-				}
-			});
-		}
-	}
-  });
-  socket.on('cli-register', (message) => {
-	if(message.u != '') {
-		var file = "./saved-data/users/" + message.u + ".dat";
-		if(fs.existsSync(file)) {
-			console.log('user ' + message.u + ' already exist!');
-			socket.emit('register-confirm', {
-				sid: -1,
-				error: 'user ' + message.u + ' already exists!'
-			});
-		} else {
+	});
+
+	socket.on('cli-message', (message) => {
+		io.sockets.in(socket.room).emit('message', {
+			user : 'user',//data.name,
+			text : message,
+			timestamp : Date.now()
+		});
+	});
+	socket.on('cli-login', (message) => {
+		if(message.u != '') {
 			socket.leave(socket.room);
 			socket.room = 'authenticated';
 			socket.join(socket.room);
-			socket.name = message.u;
-			io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user '+ message.u + ' connected', time: Date.now()});
-			socket.emit('register-confirm', {
-				sid: 0
-			});
-			console.log('user registered');
-		}
-	}
-  });
-  socket.on('cli-create', (message) => {
-  	var id = sm.CreateUser(message.u,socket,objManager);
-	socket.emit('create-confirm', {
-		id : id,
-		created: true,
-		data: {
-			objdata: JSON.stringify(objManager.obj),
-			mapdata: JSON.stringify(app.map.grid),
-			pfmatrix: JSON.stringify(app.map.pf.pfMatrix),
-			itemdata: JSON.stringify(res.itemList),
-			npcdata: JSON.stringify(res.npcList),
-			mobdata: JSON.stringify(res.mobList)
+			var id = sm.LoadUser(message.u,socket,objManager);
+			if(id>=0) {
+				socket.name = message.u;
+				io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user '+ message.u+' connected', time: Date.now()});
+				socket.emit('login-confirm', {
+					id : id,
+					sid: sm.nextSes-1,
+					created: true,
+					data: {
+						objdata: JSON.stringify(objManager.obj),
+						mapdata: JSON.stringify(app.map.grid),
+						pfmatrix: JSON.stringify(app.map.pf.pfMatrix),
+						itemdata: JSON.stringify(res.itemList),
+						npcdata: JSON.stringify(res.npcList),
+						mobdata: JSON.stringify(res.mobList),
+						questdata: JSON.stringify(res.questList)
+					}
+				});
+				console.log('user authenticated');
+			} else {
+				socket.emit('login-confirm', {
+					id : -1,
+					sid: -1,
+					created: false,
+					data: {
+						error: 'Login failed: user ' + message.u + ' does not exist'
+					}
+				});
+			}
 		}
 	});
-	console.log('user of type '+message.c+' created');
-  });
+	socket.on('cli-register', (message) => {
+		if(message.u != '') {
+			var file = "./saved-data/users/" + message.u + ".dat";
+			if(fs.existsSync(file)) {
+				console.log('user ' + message.u + ' already exist!');
+				socket.emit('register-confirm', {
+					sid: -1,
+					error: 'user ' + message.u + ' already exists!'
+				});
+			} else {
+				socket.leave(socket.room);
+				socket.room = 'authenticated';
+				socket.join(socket.room);
+				socket.name = message.u;
+				io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user '+ message.u + ' connected', time: Date.now()});
+				socket.emit('register-confirm', {
+					sid: 0
+				});
+				console.log('user registered');
+			}
+		}
+	});
+	socket.on('cli-create', (message) => {
+		var id = sm.CreateUser(message.u,socket,objManager);
+		socket.emit('create-confirm', {
+			id : id,
+			created: true,
+			data: {
+				objdata: JSON.stringify(objManager.obj),
+				mapdata: JSON.stringify(app.map.grid),
+				pfmatrix: JSON.stringify(app.map.pf.pfMatrix),
+				itemdata: JSON.stringify(res.itemList),
+				npcdata: JSON.stringify(res.npcList),
+				mobdata: JSON.stringify(res.mobList)
+			}
+		});
+		console.log('user of type '+message.c+' created');
+	});
 
-  // Socket user interface events
+	// Socket user interface events
 	socket.on('ui', function(data) {
 		switch(data.type) {
 			case 'mcl':
@@ -211,7 +212,40 @@ io.on('connection', (socket) => {
 				}
 				break;
 			default:
-				console.log('Error: unknown "ui" data type!');
+				console.log('Error: unknown "ui" data type '+ data.type);
+				break;
+		}
+	});
+
+	// Socket quest events
+	socket.on('quest', function(data) {
+		switch(data.type) {
+			case 'accept':
+				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
+					q = h.objectFindByKey(obj.quest,'id',data.id);
+				if(!q) {
+					console.log(obj.name + ' accepted quest '+ res.questList[data.id].name);
+					obj.quest.push({
+						id: data.id,
+						status: 'started'
+					});
+					obj.status = 2;
+				}
+				break;
+			case 'finish':
+				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid);
+				break;
+			case 'cancel':
+				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
+					q = h.indexFindByKey(obj.quest,'id',data.id);
+				if(q!=-1) {
+					console.log(obj.name + ' cancelled quest '+ res.questList[data.id].name);
+					obj.quest.splice(q, 1);
+					obj.status = 2;
+				}
+				break;
+			default:
+				console.log('Error: unknown "quest" data type '+ data.type);
 				break;
 		}
 	});
