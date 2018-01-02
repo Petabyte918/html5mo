@@ -28,6 +28,13 @@ io.on('connection', (socket) => {
 	console.log('session started');
 	socket.room = 'unauthenticated';
 	socket.join(socket.room);
+	
+	socket.emit('server-handshake', {
+		appName:'Enria',
+		appSubName:'Online',
+		appVersion:'1.0.0'
+	});
+
 	socket.on('disconnect', function() {
 		console.log('session disconnected');
 		if(sm.CloseSession(socket, objManager))
@@ -284,6 +291,6 @@ function ProcessCommand(socket, data) {
 	}
 }
 
-http.listen(5000, () => {
+http.listen(5000, "0.0.0.0", () => {
   console.log('started on port 5000');
 });
