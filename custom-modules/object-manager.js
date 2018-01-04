@@ -1,5 +1,6 @@
 "use strict"
 
+var settings = require('./settings.js');
 var objModels = require('./object-models.js');
 var baseModels = require('./object-base.js');
 var res = require('./resources.js');
@@ -13,8 +14,9 @@ var map;
 
 // Takes care of creating objects
 class ObjManager {
-	constructor(mapRef) {
-		this.map = mapRef;
+	constructor(instanceRef) {
+		this.instanceRef = instanceRef;
+		console.log('UPDATE: objm created with instance '+this.instanceRef.id);
 		this.obj = [];
 		this.nextid = 0;
 	}
@@ -23,25 +25,25 @@ class ObjManager {
 		var obj = this.Get(id);
 		obj.action = 'idle';
 		obj.hp.Set(obj.hp.max/2);
-		var s = this.map.NextSpawn();
+		var s = this.instanceRef.map.NextSpawn();
 		obj.pos = new h.V2(s.i,s.j);
 		obj.curTile();
 		obj.status = 2;
 	};
 
 	AddUser(icon, x, y, name, alliance, sid) {
-		var s = this.map.NextSpawn();
-		this.obj.push(new objModels.CharCreate(this.map, this.nextid, icon, s.i, s.j, name, alliance, sid, false, false));
+		var s = this.instanceRef.map.NextSpawn();
+		this.obj.push(new objModels.CharCreate(this.instanceRef, this.nextid, icon, s.i, s.j, name, alliance, sid, false, false));
 		this.nextid++;
 		return this.nextid-1;
 	}
 	AddMob(typeID, x, y) {
-		this.obj.push(new objModels.MobLoad(this.map, this.nextid, typeID, x, y));
+		this.obj.push(new objModels.MobLoad(this.instanceRef, this.nextid, typeID, x, y));
 		this.nextid++;
 		return this.nextid-1;
 	}
 	AddNPC(typeID, x, y) {
-		this.obj.push(new objModels.NPCLoad(this.map, this.nextid, typeID, x, y));
+		this.obj.push(new objModels.NPCLoad(this.instanceRef, this.nextid, typeID, x, y));
 		this.nextid++;
 		return this.nextid-1;
 	}
@@ -52,32 +54,30 @@ class ObjManager {
 	Get(id) {
 		return this.obj.filter(function(o){return o.id == id;})[0];
 	}
-	Init(mapRef) {
-		this.map = mapRef;
-	}
+
 	Update(dt) {
 		for(var i = 0; i < this.obj.length; i++) {
 			if(this.obj[i]) {
-				this.obj[i].update(dt, this);
+				this.obj[i].update(dt, this.instanceRef);
 			}
 		}
-		if(res.mobList) for(i = 0; i < this.map.mobSpawnList.length; i++) {
-			if(this.map.mobSpawnList[i].spawned==-1) {
-				if(this.map.mobSpawnList[i].spawnAt < (new Date()).getTime()) {
-					this.map.mobSpawnList[i].spawned =
-						this.AddMob(this.map.mobSpawnList[i].id,
-									this.map.mobSpawnList[i].x * this.map.settings.tileW + this.map.settings.tileW/2,
-									this.map.mobSpawnList[i].y * this.map.settings.tileW + this.map.settings.tileW/2);
+		if(res.mobList) for(i = 0; i < this.instanceRef.map.mobSpawnList.length; i++) {
+			if(this.instanceRef.map.mobSpawnList[i].spawned==-1) {
+				if(this.instanceRef.map.mobSpawnList[i].spawnAt < (new Date()).getTime()) {
+					this.instanceRef.map.mobSpawnList[i].spawned =
+						this.AddMob(this.instanceRef.map.mobSpawnList[i].id,
+									this.instanceRef.map.mobSpawnList[i].x * settings.tileW + settings.tileW/2,
+									this.instanceRef.map.mobSpawnList[i].y * settings.tileW + settings.tileW/2);
 				}
 			}
 		}
-		if(res.npcList) for(i = 0; i < this.map.npcSpawnList.length; i++) {
-			if(this.map.npcSpawnList[i].spawned==-1) {
-				if(this.map.npcSpawnList[i].spawnAt < (new Date()).getTime()) {
-					this.map.npcSpawnList[i].spawned =
-						this.AddNPC(this.map.npcSpawnList[i].id,
-									this.map.npcSpawnList[i].x * this.map.settings.tileW + this.map.settings.tileW/2,
-									this.map.npcSpawnList[i].y * this.map.settings.tileW + this.map.settings.tileW/2);
+		if(res.npcList) for(i = 0; i < this.instanceRef.map.npcSpawnList.length; i++) {
+			if(this.instanceRef.map.npcSpawnList[i].spawned==-1) {
+				if(this.instanceRef.map.npcSpawnList[i].spawnAt < (new Date()).getTime()) {
+					this.instanceRef.map.npcSpawnList[i].spawned =
+						this.AddNPC(this.instanceRef.map.npcSpawnList[i].id,
+									this.instanceRef.map.npcSpawnList[i].x * settings.tileW + settings.tileW/2,
+									this.instanceRef.map.npcSpawnList[i].y * settings.tileW + settings.tileW/2);
 				}
 			}
 		}
@@ -85,27 +85,28 @@ class ObjManager {
 	UserSave(id) {
 		var u = this.Get(id);
 		if(u) {
-			fs.writeFile("./saved-data/users/"+u.name+".dat", JSON.stringify(u) , function(err) {
+			fs.writeFile("./saved-data/users/" + u.name + ".dat", JSON.stringify(u) , function(err) {
 				if(err) {
 					return console.log(err);
 				}
-				console.log("User "+u.name+" saved!");
+				console.log("UPDATE: User " + u.name + " saved!");
 			});
 		} else {
-			console.log('Save error: user not found!');
+			console.log('ERROR: save user - user '+ id + ' not found!');
 		}
 	}
 	LoadUser(sid, nobj) {
 		var obj = new baseModels.BaseObj(this.nextid, nobj.img, nobj.pos.x, nobj.pos.y, 'user', nobj.alliance, nobj.name);
 		// Session ID
 		obj.sid = sid;
+		obj.instance = this.instanceRef.id;
 
 		obj.lvl = nobj.lvl;
 		obj.hp = new baseModels.BarVal(nobj.hp.val,nobj.hp.max,nobj.hp.reg);
 
 		obj.range = nobj.range;
 		obj.atrib = nobj.atrib;
-		baseModels.baseCharFunctionality(obj, this.map);
+		baseModels.baseCharFunctionality(obj, this.instanceRef.map);
 
 		obj.money = nobj.money;
 		obj.exp = nobj.exp;
@@ -127,7 +128,7 @@ class ObjManager {
 			if(nobj.inv.slot[i].count>0)
 				obj.inv.slot[i].AddItem(nobj.inv.slot[i].iid, nobj.inv.slot[i].count);
 		obj.decide = function() {
-			console.log('user.decide');
+			console.log('UPDATE: user.decide');
 		};
 
 		obj.recalcData();

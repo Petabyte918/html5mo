@@ -1,5 +1,5 @@
 {
-	"name": "Starting Map",
+	"name": "Area 1",
 	"x": 20,
 	"y": 10,
 	"spawnI": 2,
@@ -10,11 +10,11 @@
 		"3": "tiles/cobblestone-regular.jpg"
 	},
 	"mobSpawnList": [
-		{"id":  1, "x": 15, "y": 7, "spawned": -1, "spawnAt": 0},
-		{"id":  2, "x": 14, "y": 3, "spawned": -1, "spawnAt": 0},
-		{"id":  2, "x": 12, "y": 2, "spawned": -1, "spawnAt": 0},
-		{"id":  3, "x": 7,  "y": 8, "spawned": -1, "spawnAt": 0},
-		{"id":  4, "x": 8,  "y": 4, "spawned": -1, "spawnAt": 0}
+		{"id":  3, "x": 15, "y": 7, "spawned": -1, "spawnAt": 0},
+		{"id":  3, "x": 14, "y": 3, "spawned": -1, "spawnAt": 0},
+		{"id":  3, "x": 12, "y": 2, "spawned": -1, "spawnAt": 0},
+		{"id":  4, "x": 7,  "y": 8, "spawned": -1, "spawnAt": 0},
+		{"id":  2, "x": 8,  "y": 4, "spawned": -1, "spawnAt": 0}
 	],
 	"npcSpawnList": [
 		{"id":  1, "x": 2, "y": 4, "spawned": -1, "spawnAt": 0}

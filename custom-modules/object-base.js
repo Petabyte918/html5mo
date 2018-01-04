@@ -1,11 +1,10 @@
 "use strict"
 
-var settings = require('./settings.js').Settings();
+var settings = require('./settings.js');
 var res = require('./resources.js');
 var h = require('./helpers.js');
 var inv = require('./inventory.js');
 var PF = require('pathfinding');
-//var fs = require('fs');
 var g = require('./globals.js').Globals;
 
 var BarVal = function(val,max,regen) {
@@ -41,7 +40,7 @@ var BaseObj = function(id, img, x, y, type, alliance, name) {
 	return this;
 };
 
-var baseCharFunctionality = function(obj, map, dto) {
+var baseCharFunctionality = function(obj, map) {
 	obj.stat = {};
 	obj.targetID;
 	obj.followID;
@@ -54,7 +53,7 @@ var baseCharFunctionality = function(obj, map, dto) {
 	obj.v = h.V2(0,0);
 	obj.tpos = obj.pos;
 	obj.curTile = function() {
-		this.tile = h.V2(Math.floor(this.pos.y/map.settings.tileW),Math.floor(this.pos.x/map.settings.tileW));
+		this.tile = h.V2(Math.floor(this.pos.y/settings.tileW),Math.floor(this.pos.x/settings.tileW));
 	};
 	obj.curTile();
 
@@ -67,8 +66,8 @@ var baseCharFunctionality = function(obj, map, dto) {
 				this.path = PF.Util.smoothenPath(map.pf.pfGrid.clone(), this.path);
 				//this.path = PF.Util.compressPath(this.path);
 				this.ppos = h.V2(map.grid[this.path[0][1]][this.path[0][0]].pos.x,map.grid[this.path[0][1]][this.path[0][0]].pos.y);
-				this.ppos.x += map.settings.tileW/2;
-				this.ppos.y += map.settings.tileW/2;
+				this.ppos.x += settings.tileW/2;
+				this.ppos.y += settings.tileW/2;
 			}
 			this.tpos = h.V2(targetVector.x, targetVector.y);
 		}
@@ -82,12 +81,12 @@ var baseCharFunctionality = function(obj, map, dto) {
 		this.followID = id;
 		this.action = 'follow';
 	};
-	obj.reachTarget = function(om) {
+	obj.reachTarget = function(im) {
 		this.tpos = this.pos;
-		var targetObj = om.Get(this.followID);
+		var targetObj = im.om.Get(this.followID);
 		if(targetObj.action!='dead') {
 			if(this.targetID==this.followID) {
-				this.hit(targetObj, om);
+				this.hit(targetObj, im);
 			} else {
 				if(targetObj.type == 'npc') {
 					var data;
@@ -120,12 +119,12 @@ var baseCharFunctionality = function(obj, map, dto) {
 		this.followID = id;
 		this.action = 'follow';
 	};
-	obj.hit = function(targetObj, om) {
+	obj.hit = function(targetObj, im) {
 		if(targetObj.action!='dead') {
 			if (this.atkcd<=0) {
 				this.atkcd = this.stat.atkspd;
 				var dmg = Math.round(this.stat.patk + (Math.random()-0.5)*this.stat.patk*0.2);
-				console.log(this.name + ' dmg ' + this.stat.patk);
+				console.log('UPDATE: '+this.name + ' dmg ' + this.stat.patk);
 				var newHp = targetObj.hp.val-dmg;
 				if (newHp>0) {
 					targetObj.hp.Set(newHp);
@@ -139,10 +138,10 @@ var baseCharFunctionality = function(obj, map, dto) {
 						targetObj.attack(this.id);	
 					}
 				} else {
-					console.log(this.name + ' has killed ' + targetObj.name);
+					console.log('UPDATE: '+this.name + ' has killed ' + targetObj.name);
 					// Get XP
 					this.exp += targetObj.exp;
-					console.log('exp ' + targetObj.exp);
+					console.log('UPDATE: exp ' + targetObj.exp);
 					if(this.type == 'user')
 						this.lvlUp();
 					// Get loot
@@ -160,7 +159,7 @@ var baseCharFunctionality = function(obj, map, dto) {
 						}
 					this.status = 2;
 
-					targetObj.die(om);
+					targetObj.die(im);
 					this.loseTarget(targetObj.id);
 				}
 				targetObj.status = 2;
@@ -169,7 +168,7 @@ var baseCharFunctionality = function(obj, map, dto) {
 			this.loseTarget(targetObj.id);
 		}
 	};
-	obj.die = function(om) {
+	obj.die = function(im) {
 		this.hp.Set(0);
 		this.targetID = null;
 		this.followID = null;
@@ -177,7 +176,7 @@ var baseCharFunctionality = function(obj, map, dto) {
 		this.status = 2;
 
 		if(this.type == 'mob') {
-			var spawn = h.objectFindByKey(om.map.mobSpawnList, 'spawned', this.id);
+			var spawn = h.objectFindByKey(im.map.mobSpawnList, 'spawned', this.id);
 			if(spawn) {
 				spawn.spawnAt = (new Date()).getTime() + res.mobList[this.typeID].respawn*1000;
 				spawn.spawned = -1;
@@ -185,7 +184,7 @@ var baseCharFunctionality = function(obj, map, dto) {
 		}
 	};
 	// Update object
-	obj.update = function(dt, om) {
+	obj.update = function(dt, im) {
 		if(this.action == 'dead') {
 		// if is dead do nothing
 		} else {
@@ -193,13 +192,13 @@ var baseCharFunctionality = function(obj, map, dto) {
 				this.atkcd -= dt;
 			if(this.action == 'follow') {
 				if(this.followID !== null) {
-					var t = om.Get(this.followID);
+					var t = im.om.Get(this.followID);
 					if(t == null) {
 						this.action = 'idle';
 						this.followID = null;
 					} else {
 						// set target position to target object location
-						this.move(t.pos, om.map);
+						this.move(t.pos, im.map);
 					}
 				}
 			}
@@ -213,13 +212,13 @@ var baseCharFunctionality = function(obj, map, dto) {
 					var vect = h.V2(tmppos.x-this.pos.x, tmppos.y-this.pos.y);
 					var length = Math.sqrt(vect.x * vect.x + vect.y * vect.y);
 					if(this.action == 'follow' && length<settings.cFollowDist){
-						this.reachTarget(om);
+						this.reachTarget(im);
 					} else if(length < 5) {//this.v*2*dt) {
 						if(this.path.length>1) {
 							this.path.splice(0,1);
-							this.ppos = om.map.grid[this.path[0][1]][this.path[0][0]].pos;
-							//this.ppos.x += this.map.settings.tileW/2;
-							//this.ppos.y += this.map.settings.tileW/2;
+							this.ppos = im.map.grid[this.path[0][1]][this.path[0][0]].pos;
+							//this.ppos.x += this.settings.tileW/2;
+							//this.ppos.y += this.settings.tileW/2;
 						} else {
 							this.pos = tmppos;
 

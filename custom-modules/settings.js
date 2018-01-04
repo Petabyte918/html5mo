@@ -2,11 +2,12 @@
 
 //---  SETTINGS OBJECT   ---
 module.exports = {
-	Settings : function() {
-		this.cMapX = 20;
-		this.cMapY = 10;
-		this.cFollowDist = 32;
-		this.startingMap = './resources/maps/starter_map.data';
-		return this;
-	}
+	appName: 'Enria',
+	appSubName:'Online',
+	appVersion: '1.0.0',
+
+	cMapX : 20,
+	cMapY : 10,
+	cFollowDist : 32,
+	tileW : 64
 }

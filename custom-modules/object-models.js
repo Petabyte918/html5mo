@@ -1,26 +1,23 @@
 "use strict"
 
-var settings = require('./settings.js').Settings();
+var settings = require('./settings.js');
 var baseModels = require('./object-base.js');
 var res = require('./resources.js');
-//var h = require('./helpers.js');
 var inv = require('./inventory.js');
-//var PF = require('pathfinding');
-//var fs = require('fs');
-//var map;
 
 // Character object - the object that will live and move in game
-var CharCreate = function(map, id, img, x, y, name, alliance, sid, classType, gender) {
+var CharCreate = function(instance, id, img, x, y, name, alliance, sid, classType, gender) {
 	var obj = new baseModels.BaseObj(id, img, x, y, 'user', alliance, name);
 	// Session ID
 	obj.sid = sid;
+	obj.instance = instance;
 
 	obj.lvl = 1;
 	obj.hp = new baseModels.BarVal(150,150,1);
 
 	obj.range = 32;
 	obj.atrib = [10,10,10,10,10,10];
-	baseModels.baseCharFunctionality(obj, map);
+	baseModels.baseCharFunctionality(obj, instance.map);
 	obj.money = 100;
 	obj.exp = 0;
 	obj.nextlvl = 50;
@@ -32,14 +29,14 @@ var CharCreate = function(map, id, img, x, y, name, alliance, sid, classType, ge
 	obj.loadout = new inv.Inventory(id, 'l', 49);
 	obj.inv = new inv.Inventory(id, 'i', 49);
 	obj.decide = function() {
-		console.log('char.decide');
+		console.log('UPDATE: char.decide');
 	};
 	obj.recalcData();
 	return obj;
 };
 
 // Mob object - non user controlled object that will be fought by users
-var MobLoad = function(map, id, typeID, x, y) {
+var MobLoad = function(instance, id, typeID, x, y) {
 	var mob = res.mobList.filter(function(o){return o.typeID == typeID})[0];
 	var obj = new baseModels.BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
 	obj.typeID = typeID;
@@ -51,7 +48,7 @@ var MobLoad = function(map, id, typeID, x, y) {
 	
 	obj.range = 32;
 	obj.loot = mob.loot;
-	baseModels.baseCharFunctionality(obj, map);
+	baseModels.baseCharFunctionality(obj, instance.map);
 
 	obj.stat.patk = mob.patk;
 	obj.stat.pdef = mob.pdef;
@@ -75,7 +72,7 @@ var MobLoad = function(map, id, typeID, x, y) {
 	return obj;
 };
 
-var NPCLoad = function(map, id, typeID, x, y) {
+var NPCLoad = function(instance, id, typeID, x, y) {
 	var npc = res.npcList.filter(function(o){return o.id == typeID})[0];
 	var obj = new baseModels.BaseObj(id, npc.img, x, y, 'npc', npc.alliance, npc.name);
 	obj.typeID = typeID;
@@ -96,7 +93,7 @@ var NPCLoad = function(map, id, typeID, x, y) {
 	obj.loot = npc.loot;
 	obj.sell = npc.sell;
 	obj.priceMod = npc.priceMod;
-	baseModels.baseCharFunctionality(obj, map);
+	baseModels.baseCharFunctionality(obj, instance.map);
 	obj.decide = function() { //npc obj decide
 	};
 	return obj;
@@ -108,5 +105,4 @@ module.exports = {
 	CharCreate: CharCreate,
 	MobLoad: MobLoad,
 	NPCLoad: NPCLoad
-
 };

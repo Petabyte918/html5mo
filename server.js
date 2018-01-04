@@ -6,21 +6,21 @@ var io = require('socket.io')(http);
 var fs = require("fs");
 
 var g = require('./custom-modules/globals.js').Globals;
-var settings = require('./custom-modules/settings.js').Settings();
+var settings = require('./custom-modules/settings.js');
 var res = require('./custom-modules/resources.js');
 var h = require('./custom-modules/helpers.js');
 
-var map = require('./custom-modules/map.js');
 var inv = require('./custom-modules/inventory.js');
 var om = require('./custom-modules/object-manager.js');
 
 var sm = new (require('./custom-modules/session-manager.js')).SessionManager();
 g.sm = sm;
-var objManager = new om.ObjManager(map);
-g.om = objManager;
+
+var im = new (require('./custom-modules/instance-manager.js')).InstanceManager();
+
 var dto = new (require('./custom-modules/dto.js')).DTO(io, sm);
 g.dto = dto;
-var app = new (require('./custom-modules/app.js')).App(dto, objManager);
+var app = new (require('./custom-modules/app.js')).App(dto, im);
 g.app = app;
 app.Start();
 
@@ -30,14 +30,14 @@ io.on('connection', (socket) => {
 	socket.join(socket.room);
 	
 	socket.emit('server-handshake', {
-		appName:'Enria',
-		appSubName:'Online',
-		appVersion:'1.0.0'
+		appName: settings.appName,
+		appSubName: settings.appSubName,
+		appVersion: settings.appVersion
 	});
 
 	socket.on('disconnect', function() {
 		console.log('session disconnected');
-		if(sm.CloseSession(socket, objManager))
+		if(sm.CloseSession(socket, im))
 			io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user disconnected', time: Date.now()});
 		socket.leave(socket.room);
 	});
@@ -51,28 +51,31 @@ io.on('connection', (socket) => {
 	});
 	socket.on('cli-login', (message) => {
 		if(message.u != '') {
-			socket.leave(socket.room);
-			socket.room = 'authenticated';
-			socket.join(socket.room);
-			var id = sm.LoadUser(message.u,socket,objManager);
+			var id = sm.LoadUser(message.u,socket,im);
+			console.log('user created id: '+id);
 			if(id>=0) {
 				socket.name = message.u;
+				socket.leave(socket.room);
+				socket.room = socket.instance;
+				socket.join(socket.room);
 				io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user '+ message.u+' connected', time: Date.now()});
+				var inst = im.GetInstance(socket.instance);
 				socket.emit('login-confirm', {
 					id : id,
 					sid: sm.nextSes-1,
 					created: true,
 					data: {
-						objdata: JSON.stringify(objManager.obj),
-						mapdata: JSON.stringify(app.map.grid),
-						pfmatrix: JSON.stringify(app.map.pf.pfMatrix),
+						objdata: JSON.stringify(inst.om.obj),
+						mapdata: JSON.stringify(inst.map.grid),
+						pfmatrix: JSON.stringify(inst.map.pf.pfMatrix),
 						itemdata: JSON.stringify(res.itemList),
 						npcdata: JSON.stringify(res.npcList),
 						mobdata: JSON.stringify(res.mobList),
 						questdata: JSON.stringify(res.questList)
 					}
 				});
-				console.log('user authenticated');
+				var inst = sm.sessions[sm.StripSID(socket.id)];
+				console.log('user authenticated, join room ' + socket.instance);
 			} else {
 				socket.emit('login-confirm', {
 					id : -1,
@@ -108,14 +111,19 @@ io.on('connection', (socket) => {
 		}
 	});
 	socket.on('cli-create', (message) => {
-		var id = sm.CreateUser(message.u,socket,objManager);
+		var id = sm.CreateUser(message.u,socket,im);
+		socket.leave(socket.room);
+		socket.room = socket.instance;
+		socket.join(socket.room);
+		io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user '+ message.u+' connected', time: Date.now()});
+		var inst = im.GetInstance(socket.instance);
 		socket.emit('create-confirm', {
 			id : id,
 			created: true,
 			data: {
-				objdata: JSON.stringify(objManager.obj),
-				mapdata: JSON.stringify(app.map.grid),
-				pfmatrix: JSON.stringify(app.map.pf.pfMatrix),
+				objdata: JSON.stringify(inst.om.obj),
+				mapdata: JSON.stringify(inst.map.grid),
+				pfmatrix: JSON.stringify(inst.map.pf.pfMatrix),
 				itemdata: JSON.stringify(res.itemList),
 				npcdata: JSON.stringify(res.npcList),
 				mobdata: JSON.stringify(res.mobList)
@@ -126,19 +134,20 @@ io.on('connection', (socket) => {
 
 	// Socket user interface events
 	socket.on('ui', function(data) {
-		var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid);
+		var inst = im.GetInstance(socket.instance),
+			obj = inst.om.Get(sm.sessions[sm.StripSID(socket.id)].oid);
 		if (obj.action =="dead") {
 			if(data.type=='respawn')
-				objManager.RespawnUser(obj.id);
+				inst.om.RespawnUser(obj.id);
 			return;
 		}
 
 		switch(data.type) {
 			case 'mcl':
-				obj.moveTo(h.V2(data.data.x,data.data.y),app.map);
+				obj.moveTo(h.V2(data.data.x,data.data.y),inst.map);
 				break;
 			case 'mclo':
-				var t =  objManager.Get(data.data);
+				var t =  inst.om.Get(data.data);
 				if(t) {
 					if(obj.alliance == t.alliance || t.alliance == 0) {
 						console.log(obj.name+' follow '+t.name);
@@ -164,9 +173,9 @@ io.on('connection', (socket) => {
 					console.log(data);
 					break;
 				}
-				var fromobj = objManager.Get(from[0]),
+				var fromobj = inst.om.Get(from[0]),
 					frominv = {},
-					toobj = objManager.Get(to[0]),
+					toobj = inst.om.Get(to[0]),
 					toinv = {};
 				if (from[1] == 'i') {
 					frominv = fromobj.inv;
@@ -229,10 +238,11 @@ io.on('connection', (socket) => {
 
 	// Socket quest events
 	socket.on('quest', function(data) {
+		var inst = im.GetInstance(socket.instance),
+			obj = inst.om.Get(sm.sessions[sm.StripSID(socket.id)].oid);
 		switch(data.type) {
 			case 'accept':
-				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
-					q = h.objectFindByKey(obj.quest,'id',data.id);
+				var q = h.objectFindByKey(obj.quest,'id',data.id);
 				if(!q) {
 					console.log(obj.name + ' accepted quest '+ res.questList[data.id].name);
 					obj.quest.push({
@@ -243,11 +253,9 @@ io.on('connection', (socket) => {
 				}
 				break;
 			case 'finish':
-				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid);
 				break;
 			case 'cancel':
-				var obj = objManager.Get(sm.sessions[sm.StripSID(socket.id)].oid),
-					q = h.indexFindByKey(obj.quest,'id',data.id);
+				var q = h.indexFindByKey(obj.quest,'id',data.id);
 				if(q!=-1) {
 					console.log(obj.name + ' cancelled quest '+ res.questList[data.id].name);
 					obj.quest.splice(q, 1);

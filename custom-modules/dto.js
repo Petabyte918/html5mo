@@ -5,7 +5,7 @@ class DTO {
 	constructor(sio, sm) {
 		this.sio = sio;
 		this.sm = sm;
-		this.sendingUpdates = false;		
+		this.sendingUpdates = false;
 	}
 	SendTo(userID, dataType, data) {
 		var s = this.sm.GetSocketByID(userID);
@@ -17,8 +17,8 @@ class DTO {
 	SendToRoom(room, dataType, data) {
 		this.sio.sockets.in(room).emit(dataType, data);
 	}
-	StartEmitUpdates(objRef) {
-		this.objectsRef = objRef;
+	StartEmitUpdates(instRef) {
+		this.instRef = instRef;
 		if(!this.sendingUpdates) {
 			this.sendingUpdates = true;
 			this.EmitUpdates();
@@ -28,32 +28,38 @@ class DTO {
 		this.sendingUpdates = false;
 	}
 	EmitUpdates() {
-		var cd = [];
-		var removeList = [];
-		for(var i = 0; i < this.objectsRef.length; i++) {
-			if(this.objectsRef[i].status == 1) {
-				cd.push({id: this.objectsRef[i].id, status: 1});
-			} else if(this.objectsRef[i].status == 2) {
-				if(this.objectsRef[i].action == 'dead' && this.objectsRef[i].type != 'user') {
-					removeList.push(this.objectsRef[i].id);
-					console.log(this.objectsRef[i].name+' is dead '+ this.objectsRef[i].status);
-					cd.push({id: this.objectsRef[i].id, status: 0, data: this.objectsRef[i]});
-					this.objectsRef[i].status = 0;
-				} else {
-					cd.push({id: this.objectsRef[i].id, status: 2, data: this.objectsRef[i]});
-					this.objectsRef[i].status = 1;
+		for(var ins = 0; ins<this.instRef.inst.length; ins++) {
+			if(this.instRef.inst[ins].running) {
+				var objRef = this.instRef.inst[ins].om.obj,
+					cd = [],
+					removeList = [];
+				for(var i = 0; i < objRef.length; i++) {
+					if(objRef[i].status == 1) {
+						cd.push({id: objRef[i].id, status: 1});
+					} else if(objRef[i].status == 2) {
+						if(objRef[i].action == 'dead' && objRef[i].type != 'user') {
+							removeList.push(objRef[i].id);
+							console.log('UPDATE: '+objRef[i].name+' is dead '+ objRef[i].status);
+							cd.push({id: objRef[i].id, status: 0, data: objRef[i]});
+							objRef[i].status = 0;
+						} else {
+							cd.push({id: objRef[i].id, status: 2, data: objRef[i]});
+							objRef[i].status = 1;
+						}
+					}
 				}
+				for(i = 0; i < removeList.length; i++) {
+					console.log('UPDATE: remove '+ removeList[i]);
+					const index = objRef.findIndex(item => item.id === removeList[i]);
+					objRef.splice(index, 1);
+				}
+				this.SendToRoom(this.instRef.inst[ins].id,'update-data', {
+					data: JSON.stringify(cd),
+					time: Date.now()
+				});
 			}
 		}
-		for(i = 0; i < removeList.length; i++) {
-			console.log('remove '+ removeList[i]);
-			const index = this.objectsRef.findIndex(item => item.id === removeList[i]);
-			this.objectsRef.splice(index, 1);
-		}
-		this.sio.emit('update-data', {
-			data: JSON.stringify(cd),
-			time: Date.now()
-		});
+		
 		if(this.sendingUpdates) setTimeout(this.EmitUpdates.bind(this),200);
 	}
 };

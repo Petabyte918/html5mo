@@ -1,6 +1,7 @@
 "use strict"
 
 var fs = require("fs");
+var h = require("./helpers.js");
 
 //---  SESSION MANAGER OBJECT   ---
 
@@ -13,17 +14,21 @@ class SessionManager {
 		var sid = this.StripSID(socket.id);
 		this.sessions[sid].auth = true;
 	}
-	CreateUser(name, socket, om) {
+	CreateUser(name, socket, im) {
 		var sid = this.StripSID(socket.id),
 			id,
 			file = "./saved-data/users/"+name+".dat";
 		if(fs.existsSync(file)) {
-			console.log('user '+ name +' already exist!');
+			console.log('ERROR: user '+ name +' already exist!');
 			return -1;
 		} else {
-			console.log('create user');
-			id = om.AddUser('char.png', 100, 100, name, 1, sid);
-			console.log(name+' connected');
+			var definst = h.objectFindByKey(im.inst, 'default', true);
+			socket.instance = definst.id;
+			if(!definst.running) {
+				definst.Start();
+			}
+			id = definst.om.AddUser('char.png', 100, 100, name, 1, sid);
+			console.log('UPDATE: '+name+' connected');
 			this.sessions[sid] = {
 				name: name,
 				socket: socket,
@@ -34,35 +39,42 @@ class SessionManager {
 			return id;
 		}
 	}
-	LoadUser(name, socket, om) {
+	LoadUser(name, socket, im) {
 		var sid = this.StripSID(socket.id),
 			id,
 			file = "./saved-data/users/"+name+".dat";
 		if(fs.existsSync(file)) {
-			console.log('load user');
-			id = om.LoadUser(sid, JSON.parse(fs.readFileSync(file, 'utf8')));
-			console.log(name+' connected');
+			var udata = JSON.parse(fs.readFileSync(file, 'utf8'));
+			var userinst = h.objectFindByKey(im.inst, 'id', udata.instance);
+			socket.instance = userinst.id;
+			if(!userinst.running) {
+				userinst.Start();
+			}
+			id = userinst.om.LoadUser(sid, udata);
+			console.log('UPDATE: '+name+' connected');
 			this.sessions[sid] = {
 				name: name,
 				socket: socket,
 				oid: id,
-				auth: true
+				auth: true,
+				instance: userinst.id
 			};
 			this.nextSes++;
 			return id;
 		} else {
-			console.log('user '+ name +' does not exist!');
+			console.log('ERROR: Load user - user '+ name +' does not exist!');
 			return -1;
 		}
 	}
-	CloseSession(socket, om) {
+	CloseSession(socket, im) {
 		var sid = this.StripSID(socket.id);
 		if(this.sessions[sid]) {
+			var userinst = h.objectFindByKey(im.inst, 'id', socket.instance);
 			if(this.sessions[sid].auth) {
-				om.UserSave(this.sessions[sid].oid);
-				console.log(this.sessions[sid].name+' has disconnected');
+				userinst.om.UserSave(this.sessions[sid].oid);
+				console.log('UPDATE: '+this.sessions[sid].name + ' has disconnected');
 			}
-			om.RemoveObj(this.sessions[sid].oid);
+			userinst.om.RemoveObj(this.sessions[sid].oid);
 			delete this.sessions[sid];
 			return true;
 		}

@@ -1,0 +1,29 @@
+[
+	{
+		"id": 0,
+		"name": "none",
+		"singleInstance": true,
+		"map": "none"
+	},
+	{
+		"id": 1,
+		"name": "Starting Map",
+		"singleInstance": true,
+		"default": true,
+		"map": "starter_map"
+	},
+	{
+		"id": 2,
+		"name": "Area 1",
+		"singleInstance": true,
+		"default": false,
+		"map": "a1"
+	},
+	{
+		"id": 3,
+		"name": "Area 2",
+		"singleInstance": false,
+		"default": false,
+		"map": "a2"
+	}
+]

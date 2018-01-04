@@ -3,13 +3,13 @@
 var h = require('./helpers.js');
 var PF = require('pathfinding');
 var fs = require('fs');
+var settings = require('./settings.js');
 
 //---  MAP CONSTRUCTOR  ---
 
 function InitMap(_this) {
 	_this.grid = [];
 	_this.settings = {
-		tileW : 64,
 		spawnI: 1,
 		spawnJ: 1,
 		nextSpawn: 1
@@ -28,8 +28,8 @@ function InitMap(_this) {
 		this.settings.nextSpawn++;
 		if(this.settings.nextSpawn>8) this.settings.nextSpawn = 1;
 		return {
-			i: (this.settings.spawnI+this.spawnMapI[this.settings.nextSpawn])*this.settings.tileW + this.settings.tileW/2,
-			j: (this.settings.spawnJ+this.spawnMapJ[this.settings.nextSpawn])*this.settings.tileW + this.settings.tileW/2
+			i: (this.settings.spawnI+this.spawnMapI[this.settings.nextSpawn])*settings.tileW + settings.tileW/2,
+			j: (this.settings.spawnJ+this.spawnMapJ[this.settings.nextSpawn])*settings.tileW + settings.tileW/2
 		};
 	}
 }
@@ -39,7 +39,7 @@ function FinalizeMap(_this) {
 	// get the tile at position
 	_this.tileByPos = function(position) {
 		return Object.assign( //copy the object so that someone don't accidentally edit the tile
-			_this.grid[Math.floor(position.y/_this.settings.tileW)][Math.floor(position.x/_this.settings.tileW)],{}
+			_this.grid[Math.floor(position.y/settings.tileW)][Math.floor(position.x/settings.tileW)],{}
 		);
 	}
 }
@@ -54,7 +54,7 @@ function _Map(x,y) {
 		this.grid.push([]);
 		this.pf.pfMatrix.push([]);
 		for (var i = 0; i < x; i++) {
-			this.grid[j].push(new Tile(nextTile, i, j, this.settings.tileW, 2, 'tiles/grass-sparse.jpg'));
+			this.grid[j].push(new Tile(nextTile, i, j, settings.tileW, 2, 'tiles/grass-sparse.jpg'));
 			this.pf.pfMatrix[j].push(0);
 			nextTile++;
 		}
@@ -66,7 +66,8 @@ function _Map(x,y) {
 
 //---  MAP LOADER  ---
 
-function _LoadMap(fileName) {
+function _LoadMap(instanceID, fileName) {
+	this.instanceID = instanceID;
 	// Read data
 	var obj, data;
 	var data = JSON.parse(fs.readFileSync(fileName, 'utf8'));
@@ -82,7 +83,7 @@ function _LoadMap(fileName) {
 		this.pf.pfMatrix.push([]);
 		for (var i = 0; i < data.x; i++) {
 			this.grid[j].push(
-				new Tile(data.tileData[j][i].id, i, j, this.settings.tileW, data.tileData[j][i].walkable, data.textureList[data.tileData[j][i].img])
+				new Tile(data.tileData[j][i].id, i, j, settings.tileW, data.tileData[j][i].walkable, data.textureList[data.tileData[j][i].img])
 			);
 			this.pf.pfMatrix[j].push((data.tileData[j][i].walkable > 1) ? 0 : 1); // 0-walkable
 		}

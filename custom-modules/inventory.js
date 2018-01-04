@@ -1,6 +1,6 @@
 "use strict"
 
-var settings = require("./settings.js").Settings();
+var settings = require("./settings.js");
 var h = require("./helpers.js");
 var res = require('./resources.js');
 var fs = require("fs");
@@ -11,16 +11,15 @@ class Inventory {
 	constructor(name, type, cap) {
 		this.name = name;
 		this.type = type;
-		//called first time before the ngOnInit()
 		if(cap<1)
-		 cap = 1;
+			cap = 1;
 		this.capacity = cap;
 		this.slot = new Array(0);
 		var sType = 0;
 		if(type == 'i') {sType = 0;} else
 		if(type == 'l') {sType = 2;}
 		for (var i = 0; i < cap; i++) {
-		 this.slot.push(new Slot(i,sType));
+			this.slot.push(new Slot(i,sType));
 		}
 	}
 
@@ -65,9 +64,7 @@ function MoveItem(from, to) {
 	var err = "";
 	if(to.count == 0 || to.iid == from.iid) {
 		var diff = (from.count+to.count<=to.maxCount)? from.count : to.maxCount-to.count;
-		//console.log('move qty: '+diff);
 		diff -= to.AddItem(from.iid,diff);
-			//console.log('ok, remove');
 		from.RemoveItem(diff);
 	}
 	return err;
@@ -118,4 +115,3 @@ module.exports = {
 	Slot: Slot,
 	MoveItem: MoveItem
 };
-
