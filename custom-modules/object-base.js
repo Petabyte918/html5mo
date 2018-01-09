@@ -29,7 +29,8 @@ var BarVal = function(val,max,regen) {
 //---  OBJECT MODELS   ---
 
 // BaseObj - the base object that all the other game objects derives from
-var BaseObj = function(id, img, x, y, type, alliance, name) {
+var BaseObj = function(id, img, x, y, type, alliance, name, abstract) {
+	this.abstract = abstract;
 	this.id = id;
 	this.img = img;
 	this.pos = new h.V2(x,y);
@@ -72,6 +73,13 @@ var baseCharFunctionality = function(obj, map) {
 			this.tpos = h.V2(targetVector.x, targetVector.y);
 		}
 	};
+	obj.stop = function() {
+		this.targetID = null;
+		this.followID = null;
+		this.action = 'idle';
+		this.status = 2;
+		this.tpos = this.pos;
+	}
 	// Order object to move
 	obj.moveTo = function(targetVector, map) {
 		this.move(targetVector, map);
@@ -85,14 +93,18 @@ var baseCharFunctionality = function(obj, map) {
 		this.tpos = this.pos;
 		var targetObj = im.om.Get(this.followID);
 		if(targetObj.action!='dead') {
-			if(this.targetID==this.followID) {
+			if(this.targetID==this.followID && !targetObj.abstract) {
 				this.hit(targetObj, im);
 			} else {
 				if(targetObj.type == 'npc') {
 					var data;
 					switch (targetObj.classType) {
 						case 'trader':
-							data = {typeID: targetObj.typeID, action: 'trade'};							
+							data = {typeID: targetObj.typeID, action: 'trade'};
+							break;
+						case 'portal':
+							data = {typeID: targetObj.typeID, action: 'port'};
+							break;							
 						default:
 							data = {typeID: targetObj.typeID, action: 'greet'};
 					}
@@ -100,8 +112,6 @@ var baseCharFunctionality = function(obj, map) {
 					g.dto.SendTo(this.id, 'npc_dlg', data);
 				}
 			}
-
-
 		} else {
 			this.loseTarget(this.followID);
 		}
@@ -120,7 +130,9 @@ var baseCharFunctionality = function(obj, map) {
 		this.action = 'follow';
 	};
 	obj.hit = function(targetObj, im) {
-		if(targetObj.action!='dead') {
+		if(targetObj.action=='dead' || targetObj.abstract) {
+			this.loseTarget(targetObj.id);
+		} else {
 			if (this.atkcd<=0) {
 				this.atkcd = this.stat.atkspd;
 				var dmg = Math.round(this.stat.patk + (Math.random()-0.5)*this.stat.patk*0.2);
@@ -164,8 +176,6 @@ var baseCharFunctionality = function(obj, map) {
 				}
 				targetObj.status = 2;
 			}
-		} else {
-			this.loseTarget(targetObj.id);
 		}
 	};
 	obj.die = function(im) {

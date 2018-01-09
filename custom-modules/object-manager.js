@@ -47,6 +47,13 @@ class ObjManager {
 		this.nextid++;
 		return this.nextid-1;
 	}
+	AddObj(obj) {
+		obj.stop();
+		obj.id = this.nextid;
+		this.obj.push(obj);
+		this.nextid++;
+		return this.nextid-1;
+	}
 	RemoveObj(id) {
 		this.obj.splice(h.indexFindByKey(this.obj, 'id', id),1);
 	}
@@ -92,11 +99,11 @@ class ObjManager {
 				console.log("UPDATE: User " + u.name + " saved!");
 			});
 		} else {
-			console.log('ERROR: save user - user '+ id + ' not found!');
+			console.log('ERROR: save user - user '+ id + ' instance ' + this.instanceRef.id + ' not found!');
 		}
 	}
 	LoadUser(sid, nobj) {
-		var obj = new baseModels.BaseObj(this.nextid, nobj.img, nobj.pos.x, nobj.pos.y, 'user', nobj.alliance, nobj.name);
+		var obj = new baseModels.BaseObj(this.nextid, nobj.img, nobj.pos.x, nobj.pos.y, 'user', nobj.alliance, nobj.name, false);
 		// Session ID
 		obj.sid = sid;
 		obj.instance = this.instanceRef.id;

@@ -25,7 +25,7 @@ g.app = app;
 app.Start();
 
 io.on('connection', (socket) => {
-	console.log('session started');
+	console.log('UPDATE: session started');
 	socket.room = 'unauthenticated';
 	socket.join(socket.room);
 	
@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('disconnect', function() {
-		console.log('session disconnected');
+		console.log('UPDATE: session disconnected');
 		if(sm.CloseSession(socket, im))
 			io.sockets.in(socket.room).emit('message', {user: 'server', text: 'user disconnected', time: Date.now()});
 		socket.leave(socket.room);
@@ -52,7 +52,7 @@ io.on('connection', (socket) => {
 	socket.on('cli-login', (message) => {
 		if(message.u != '') {
 			var id = sm.LoadUser(message.u,socket,im);
-			console.log('user created id: '+id);
+			console.log('UPDATE: user created id: '+id);
 			if(id>=0) {
 				socket.name = message.u;
 				socket.leave(socket.room);
@@ -64,10 +64,11 @@ io.on('connection', (socket) => {
 					id : id,
 					sid: sm.nextSes-1,
 					created: true,
+					instance: socket.instance,
 					data: {
 						objdata: JSON.stringify(inst.om.obj),
 						mapdata: JSON.stringify(inst.map.grid),
-						pfmatrix: JSON.stringify(inst.map.pf.pfMatrix),
+						instancedata: JSON.stringify(res.instanceList),
 						itemdata: JSON.stringify(res.itemList),
 						npcdata: JSON.stringify(res.npcList),
 						mobdata: JSON.stringify(res.mobList),
@@ -75,7 +76,7 @@ io.on('connection', (socket) => {
 					}
 				});
 				var inst = sm.sessions[sm.StripSID(socket.id)];
-				console.log('user authenticated, join room ' + socket.instance);
+				console.log('UPDATE: user authenticated, join room ' + socket.instance);
 			} else {
 				socket.emit('login-confirm', {
 					id : -1,
@@ -92,7 +93,7 @@ io.on('connection', (socket) => {
 		if(message.u != '') {
 			var file = "./saved-data/users/" + message.u + ".dat";
 			if(fs.existsSync(file)) {
-				console.log('user ' + message.u + ' already exist!');
+				console.log('ERROR: user ' + message.u + ' already exist!');
 				socket.emit('register-confirm', {
 					sid: -1,
 					error: 'user ' + message.u + ' already exists!'
@@ -106,7 +107,7 @@ io.on('connection', (socket) => {
 				socket.emit('register-confirm', {
 					sid: 0
 				});
-				console.log('user registered');
+				console.log('UPDATE: user registered');
 			}
 		}
 	});
@@ -120,16 +121,17 @@ io.on('connection', (socket) => {
 		socket.emit('create-confirm', {
 			id : id,
 			created: true,
+			instance: socket.instance,
 			data: {
 				objdata: JSON.stringify(inst.om.obj),
 				mapdata: JSON.stringify(inst.map.grid),
-				pfmatrix: JSON.stringify(inst.map.pf.pfMatrix),
+				instancedata: JSON.stringify(res.instanceList),
 				itemdata: JSON.stringify(res.itemList),
 				npcdata: JSON.stringify(res.npcList),
 				mobdata: JSON.stringify(res.mobList)
 			}
 		});
-		console.log('user of type '+message.c+' created');
+		console.log('UPDATE: user of type '+message.c+' created');
 	});
 
 	// Socket user interface events
@@ -150,10 +152,10 @@ io.on('connection', (socket) => {
 				var t =  inst.om.Get(data.data);
 				if(t) {
 					if(obj.alliance == t.alliance || t.alliance == 0) {
-						console.log(obj.name+' follow '+t.name);
+						//console.log(obj.name+' follow '+t.name);
 						obj.follow(t.id);
 					} else {
-						console.log(obj.name+' attack '+t.name);
+						//console.log(obj.name+' attack '+t.name);
 						obj.attack(t.id);
 					}
 				}
@@ -169,7 +171,7 @@ io.on('connection', (socket) => {
 					from = data.from.split("_");
 					to = data.to.split("_");
 				} else {
-					console.log('drop error! data:');
+					console.log('ERROR: drop error - data:');
 					console.log(data);
 					break;
 				}
@@ -183,14 +185,14 @@ io.on('connection', (socket) => {
 				else if (from[1] == 'l') {
 					frominv = fromobj.loadout;
 				} else
-					console.log('inv undefined: '+from[1]);
+					console.log('ERROR: inv undefined: ' + from[1]);
 				if (to[1] == 'i') {
 					toinv = toobj.inv;
 				}
 				else if (to[1] == 'l') {
 					toinv = toobj.loadout;
 				} else
-					console.log('inv undefined: '+to[1]);
+					console.log('ERROR: inv undefined: ' + to[1]);
 
 				var err = inv.MoveItem(frominv.slot[from[2]],toinv.slot[to[2]]);
 				if (err!='') {
@@ -217,7 +219,7 @@ io.on('connection', (socket) => {
 					npc = res.npcList[data.npc],
 					price = item.value*data.qty*npc.priceMod;
 					
-				if(price<obj.money) {obj.inv.AddItemInv(data.iid,data.qty); obj.money -= price; obj.status = 2;} else {console.log('not enough money '+price);}
+				if(price<obj.money) {obj.inv.AddItemInv(data.iid,data.qty); obj.money -= price; obj.status = 2;} else {console.log('UPDATE: not enough money '+price);}
 				break;
 			case 'sell':
 				var data = data.data,
@@ -230,8 +232,31 @@ io.on('connection', (socket) => {
 					obj.status = 2;
 				}
 				break;
+			case 'portal':
+				var data = data.data,
+					instanceID = data.iid,
+					instanceTo = im.GetInstance(instanceID);
+				if(inst.id!=instanceID) {
+					var newid = im.MoveUser(obj.id, inst.id, instanceID);
+					if(newid >-1) {
+						socket.leave(socket.room);
+						socket.instance = instanceID;
+						socket.room = socket.instance;
+						socket.join(socket.room);
+						sm.sessions[sm.StripSID(socket.id)].oid = newid;
+						socket.emit('instance-data', {
+							id : newid,
+							instance: socket.instance,
+							data: {
+								objdata: JSON.stringify(instanceTo.om.obj),
+								mapdata: JSON.stringify(instanceTo.map.grid),
+							}
+						});
+					}	
+				}	
+				break;
 			default:
-				console.log('Error: unknown "ui" data type '+ data.type);
+				console.log('ERROR: unknown "ui" data type '+ data.type);
 				break;
 		}
 	});
@@ -244,7 +269,7 @@ io.on('connection', (socket) => {
 			case 'accept':
 				var q = h.objectFindByKey(obj.quest,'id',data.id);
 				if(!q) {
-					console.log(obj.name + ' accepted quest '+ res.questList[data.id].name);
+					console.log('UPDATE: '+obj.name + ' accepted quest '+ res.questList[data.id].name);
 					obj.quest.push({
 						id: data.id,
 						status: 'started'
@@ -257,13 +282,13 @@ io.on('connection', (socket) => {
 			case 'cancel':
 				var q = h.indexFindByKey(obj.quest,'id',data.id);
 				if(q!=-1) {
-					console.log(obj.name + ' cancelled quest '+ res.questList[data.id].name);
+					console.log('UPDATE: '+obj.name + ' cancelled quest '+ res.questList[data.id].name);
 					obj.quest.splice(q, 1);
 					obj.status = 2;
 				}
 				break;
 			default:
-				console.log('Error: unknown "quest" data type '+ data.type);
+				console.log('ERROR: unknown "quest" data type '+ data.type);
 				break;
 		}
 	});
@@ -278,14 +303,14 @@ function ProcessCommand(socket, data) {
 			if(!app.playing) {
 				app.Start();
 			} else {
-				console.log('app already running!');
+				console.log('CLIENT FAULT: app already running!');
 			}
 			break;
 		case 'stop':
 			if(app.playing) {
 				app.Stop();
 			} else {
-				console.log('app already stopped!');
+				console.log('CLIENT FAULT: app already stopped!');
 			}
 			break;
 		case 'save':
@@ -295,10 +320,10 @@ function ProcessCommand(socket, data) {
 			app.Load();
 			break;
 		default:
-			console.log('Unknown command: ' + command[0]);
+			console.log('CLIENT FAULT: Unknown command: ' + command[0]);
 	}
 }
 
 http.listen(5000, "0.0.0.0", () => {
-  console.log('started on port 5000');
+  console.log('INFO: started on port 5000');
 });

@@ -14,7 +14,7 @@ class Instance {
 			return -1;
 		}
 		this.initialized = false;
-		this.hasUsers = false;
+		this.userCount = 0;
 		this.running = false;
 
 		this.id = id;
@@ -27,6 +27,7 @@ class Instance {
 	}
 
 	Initialize() {
+		console.log('UPDATE: initializing instance '+this.id);
 		this.map = map.LoadMap(this.id, './resources/maps/' + this.mapID + '.data');
 		this.om = new om.ObjManager(this);
 		this.om.instanceRef = this;
@@ -53,16 +54,38 @@ class Instance {
 		console.log("INFO: instance " + this.typeID + ":" + this.id + " stopped");
 	}
 
-	AddUser(obj) {
-
+	AddNewUser(icon, x, y, name, alliance, sid) {
+		this.userCount++;
+		return this.om.AddUser(icon, x, y, name, alliance, sid);
 	}
 
-	RemoveUser(name) {
+	AddUserObj(obj) {
+		console.log('UPDATE: add user to instance '+ this.id);
+		if(!this.running)
+			this.Start();
+			this.userCount++;
+			obj.instance = this.id;
+		return this.om.AddObj(obj);
+	}
 
+	LoadUser(sid, nobj) {
+		this.userCount++;
+		return this.om.LoadUser(sid, nobj);
+	}
+
+	RemoveUser(id) {
+		this.userCount--;
+		this.om.RemoveObj(id);
+		// if (this.userCount<1)
+		// 	this.running = false;
 	}
 
 	Update(dt) {
-		this.om.Update(dt);
+		if(this.userCount>0) {
+			this.om.Update(dt);
+			//console.log('update instance '+this.id + ' c: '+this.userCount);
+		}
+			
 	}
 }
 

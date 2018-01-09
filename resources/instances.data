@@ -25,5 +25,12 @@
 		"singleInstance": false,
 		"default": false,
 		"map": "a2"
+	},
+	{
+		"id": 4,
+		"name": "Area 3",
+		"singleInstance": true,
+		"default": false,
+		"map": "a2"
 	}
 ]

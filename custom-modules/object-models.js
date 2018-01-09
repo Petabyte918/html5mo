@@ -7,7 +7,7 @@ var inv = require('./inventory.js');
 
 // Character object - the object that will live and move in game
 var CharCreate = function(instance, id, img, x, y, name, alliance, sid, classType, gender) {
-	var obj = new baseModels.BaseObj(id, img, x, y, 'user', alliance, name);
+	var obj = new baseModels.BaseObj(id, img, x, y, 'user', alliance, name, false);
 	// Session ID
 	obj.sid = sid;
 	obj.instance = instance;
@@ -38,7 +38,7 @@ var CharCreate = function(instance, id, img, x, y, name, alliance, sid, classTyp
 // Mob object - non user controlled object that will be fought by users
 var MobLoad = function(instance, id, typeID, x, y) {
 	var mob = res.mobList.filter(function(o){return o.typeID == typeID})[0];
-	var obj = new baseModels.BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name);
+	var obj = new baseModels.BaseObj(id, mob.img, x, y, 'mob', mob.alliance, mob.name, false);
 	obj.typeID = typeID;
 	obj.lvl = mob.level;
 	obj.hp = new baseModels.BarVal(mob.hp,mob.hp,mob.hpreg);
@@ -74,7 +74,7 @@ var MobLoad = function(instance, id, typeID, x, y) {
 
 var NPCLoad = function(instance, id, typeID, x, y) {
 	var npc = res.npcList.filter(function(o){return o.id == typeID})[0];
-	var obj = new baseModels.BaseObj(id, npc.img, x, y, 'npc', npc.alliance, npc.name);
+	var obj = new baseModels.BaseObj(id, npc.img, x, y, 'npc', npc.alliance, npc.name, npc.abstract);
 	obj.typeID = typeID;
 	obj.classType = npc.classType;
 	obj.lvl = npc.level;
@@ -89,6 +89,7 @@ var NPCLoad = function(instance, id, typeID, x, y) {
 	obj.nextDecision = 0;
 	
 	obj.quests = npc.quests;
+	obj.portalList = npc.portalList;
 	obj.range = 32;
 	obj.loot = npc.loot;
 	obj.sell = npc.sell;

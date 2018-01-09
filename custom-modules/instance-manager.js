@@ -21,7 +21,17 @@ class InstanceManager {
 	}
 
 	MoveUser(id, from, to) {
-
+		var iFrom = this.GetInstance(from),
+			iTo = this.GetInstance(to),
+			obj = iFrom.om.Get(id),
+			newid = -1;
+		if(obj && iFrom && iTo) {
+			iFrom.RemoveUser(id);
+			newid = iTo.AddUserObj(obj);
+		}
+		if(newid == -1)
+			console.log('ERROR: failed to move user' + id+ ' from '+from+' to '+to);	
+		return newid;
 	}
 
 	AddUser(id, to) {
@@ -63,11 +73,6 @@ class InstanceManager {
 	}
 
 	Init() {
-		/*
-		var definst = h.objectFindByKey(this.inst, 'default', true);
-		definst.Initialize();
-		definst.Start();
-		*/
 	}
 
 	Update(dt) {

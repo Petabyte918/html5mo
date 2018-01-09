@@ -28,7 +28,28 @@ class DTO {
 		this.sendingUpdates = false;
 	}
 	EmitUpdates() {
+		var instancedata = [];
 		for(var ins = 0; ins<this.instRef.inst.length; ins++) {
+			var objList = [];
+			if(this.instRef.inst[ins].running) {
+				var objRef = this.instRef.inst[ins].om.obj;
+				for(var i = 0; i < objRef.length; i++) {
+					objList.push({
+						id:objRef[i].id,
+						type:objRef[i].type,
+						action:objRef[i].action,
+						name:objRef[i].name
+					});
+				}
+			}
+			
+			instancedata.push({
+				instid:this.instRef.inst[ins].id,
+				instname:this.instRef.inst[ins].name,
+				instrun:this.instRef.inst[ins].running, 
+				objectData:objList});
+		}
+		for(ins = 0; ins<this.instRef.inst.length; ins++) {
 			if(this.instRef.inst[ins].running) {
 				var objRef = this.instRef.inst[ins].om.obj,
 					cd = [],
@@ -54,12 +75,13 @@ class DTO {
 					objRef.splice(index, 1);
 				}
 				this.SendToRoom(this.instRef.inst[ins].id,'update-data', {
+					instance: this.instRef.inst[ins].id,
 					data: JSON.stringify(cd),
+					instData: instancedata,
 					time: Date.now()
 				});
 			}
 		}
-		
 		if(this.sendingUpdates) setTimeout(this.EmitUpdates.bind(this),200);
 	}
 };

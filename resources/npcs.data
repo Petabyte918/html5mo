@@ -6,6 +6,7 @@
 		"id": 1,
 		"classType": "trader",
 		"level": 5,
+		"abstract": false,
 		"name": "Goods trader Elias",
 		"hp": 500,
 		"hpreg": 10,
@@ -31,5 +32,53 @@
 			1,2,3,4,5,6,7,8,9,10
 		],
 		"priceMod": 2
+	},
+	{
+		"id": 2,
+		"classType": "portal",
+		"level": 0,
+		"abstract": true,
+		"name": "Portal",
+		"hp": 0,
+		"hpreg": 0,
+		"patk": 0,
+		"pdef": 0,
+		"speed": 0,
+		"alliance": 0,
+		"img": "n_2.png",
+		"agro": false,
+		"respawn": 0,
+		"exp": 0,
+		"money": 0,
+		"loot": [],
+		"textGreet": [
+			"The portal to unknown places looks intimidating"
+		],
+		"quests": [],
+		"portalList": [2]
+	},
+	{
+		"id": 3,
+		"classType": "portal",
+		"level": 0,
+		"abstract": true,
+		"name": "Portal",
+		"hp": 0,
+		"hpreg": 0,
+		"patk": 0,
+		"pdef": 0,
+		"speed": 0,
+		"alliance": 0,
+		"img": "n_2.png",
+		"agro": false,
+		"respawn": 0,
+		"exp": 0,
+		"money": 0,
+		"loot": [],
+		"textGreet": [
+			"The portal to starting area looks safe"
+		],
+		"quests": [],
+		"portalList": [1]
 	}
 ]

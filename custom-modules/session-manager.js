@@ -27,7 +27,7 @@ class SessionManager {
 			if(!definst.running) {
 				definst.Start();
 			}
-			id = definst.om.AddUser('char.png', 100, 100, name, 1, sid);
+			id = definst.AddNewUser('char.png', 100, 100, name, 1, sid);
 			console.log('UPDATE: '+name+' connected');
 			this.sessions[sid] = {
 				name: name,
@@ -50,7 +50,7 @@ class SessionManager {
 			if(!userinst.running) {
 				userinst.Start();
 			}
-			id = userinst.om.LoadUser(sid, udata);
+			id = userinst.LoadUser(sid, udata);
 			console.log('UPDATE: '+name+' connected');
 			this.sessions[sid] = {
 				name: name,
@@ -74,7 +74,7 @@ class SessionManager {
 				userinst.om.UserSave(this.sessions[sid].oid);
 				console.log('UPDATE: '+this.sessions[sid].name + ' has disconnected');
 			}
-			userinst.om.RemoveObj(this.sessions[sid].oid);
+			userinst.RemoveUser(this.sessions[sid].oid);
 			delete this.sessions[sid];
 			return true;
 		}
