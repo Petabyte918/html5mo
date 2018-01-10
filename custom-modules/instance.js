@@ -1,5 +1,6 @@
 "use strict"
 
+var settings = require('./settings.js');
 var h = require('./helpers.js');
 var res = require('./resources.js');
 var map = require('./map.js');
@@ -63,8 +64,10 @@ class Instance {
 		console.log('UPDATE: add user to instance '+ this.id);
 		if(!this.running)
 			this.Start();
-			this.userCount++;
-			obj.instance = this.id;
+		this.userCount++;
+		obj.instance = this.id;
+		obj.pos = h.V2(this.map.settings.spawnI*settings.tileW, this.map.settings.spawnJ*settings.tileW);
+		obj.curTile();
 		return this.om.AddObj(obj);
 	}
 

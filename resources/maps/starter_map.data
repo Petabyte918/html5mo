@@ -3,7 +3,7 @@
 	"x": 20,
 	"y": 10,
 	"spawnI": 2,
-	"spawnJ": 2,
+	"spawnJ": 6,
 	"textureList": {
 		"1": "tiles/grass-sparse.jpg",
 		"2": "tiles/water-plain.jpg",

@@ -7,16 +7,16 @@ var settings = require('./settings.js');
 
 //---  MAP CONSTRUCTOR  ---
 
-function InitMap(_this) {
-	_this.grid = [];
-	_this.settings = {
+function InitMap(map) {
+	map.grid = [];
+	map.settings = {
 		spawnI: 1,
 		spawnJ: 1,
 		nextSpawn: 1
 	}
-	_this.spawnMapI = [0,-1,0,1,1,1,0,-1,-1];
-	_this.spawnMapJ = [0,-1,-1,-1,0,1,1,1,0];
-	_this.pf = {
+	map.spawnMapI = [0,-1,0,1,1,1,0,-1,-1];
+	map.spawnMapJ = [0,-1,-1,-1,0,1,1,1,0];
+	map.pf = {
 		pfMatrix : [],
 		pfGrid : {},
 		pfFinder : new PF.BestFirstFinder({
@@ -24,7 +24,7 @@ function InitMap(_this) {
 			dontCrossCorners: true
 		})
 	}
-	_this.NextSpawn = function() {
+	map.NextSpawn = function() {
 		this.settings.nextSpawn++;
 		if(this.settings.nextSpawn>8) this.settings.nextSpawn = 1;
 		return {
@@ -46,51 +46,86 @@ function FinalizeMap(_this) {
 
 function _Map(x,y) {
 	// Init base
-	InitMap(this);
+	var map = {};
+	InitMap(map);
 
+	map.x = x;
+	map.y = y;
 	// Generate data
 	var nextTile = 0;
 	for(var j = 0; j < y; j++) {
-		this.grid.push([]);
-		this.pf.pfMatrix.push([]);
+		map.grid.push([]);
+		map.pf.pfMatrix.push([]);
 		for (var i = 0; i < x; i++) {
-			this.grid[j].push(new Tile(nextTile, i, j, settings.tileW, 2, 'tiles/grass-sparse.jpg'));
-			this.pf.pfMatrix[j].push(0);
+			map.grid[j].push(new Tile(nextTile, i, j, settings.tileW, 2, 'tiles/grass-sparse.jpg'));
+			map.pf.pfMatrix[j].push(0);
 			nextTile++;
 		}
 	}
 	// Finalize
-	FinalizeMap(this);
-	return this;
+	FinalizeMap(map);
+	return map;
 }
 
 //---  MAP LOADER  ---
 
 function _LoadMap(instanceID, fileName) {
-	this.instanceID = instanceID;
+	var map = {};
+	map.instanceID = instanceID;
 	// Read data
 	var obj, data;
 	var data = JSON.parse(fs.readFileSync(fileName, 'utf8'));
 	// Init base
-	InitMap(this);
-	this.settings.spawnI = data.spawnI;
-	this.settings.spawnJ = data.spawnJ;
-	this.mobSpawnList = data.mobSpawnList;
-	this.npcSpawnList = data.npcSpawnList;
+	InitMap(map);
+	map.settings.spawnI = data.spawnI;
+	map.settings.spawnJ = data.spawnJ;
+	map.mobSpawnList = data.mobSpawnList;
+	map.npcSpawnList = data.npcSpawnList;
 	// Generate data
 	for(var j = 0; j < data.y; j++) {
-		this.grid.push([]);
-		this.pf.pfMatrix.push([]);
+		map.grid.push([]);
+		map.pf.pfMatrix.push([]);
 		for (var i = 0; i < data.x; i++) {
-			this.grid[j].push(
+			map.grid[j].push(
 				new Tile(data.tileData[j][i].id, i, j, settings.tileW, data.tileData[j][i].walkable, data.textureList[data.tileData[j][i].img])
 			);
-			this.pf.pfMatrix[j].push((data.tileData[j][i].walkable > 1) ? 0 : 1); // 0-walkable
+			map.pf.pfMatrix[j].push((data.tileData[j][i].walkable > 1) ? 0 : 1); // 0-walkable
 		}
 	}
+
 	// Finalize
-	FinalizeMap(this);
-	return this;
+	FinalizeMap(map);
+	return map;
+}
+
+function _SaveMap(obj) {
+	var m,
+		id = 0;
+
+	m = {
+		name: "new map",
+		x: obj.x,
+		y: obj.y,
+		spawnI: 2,
+		spawnJ: 2,
+		textureList: {},
+		mobSpawnList: [],
+		npcSpawnList: [],
+		tileData: []
+	}
+	
+	for(var j = 0; j < obj.y; j++) {
+		m.tileData.push([]);
+		for (var i = 0; i < obj.x; i++) {
+			if(i == 0 || j == 0 || i == obj.x || j == obj.y)
+				m.tileData[j].push({id: id, walkable: 2, img: 2});
+			else
+				m.tileData[j].push({id: id, walkable: 0, img: 1});
+		id++;
+		}
+	}
+	fs.writeFileSync('resources\\maps\\newmap.json', JSON.stringify(m)); 
+
 }
 
 //--- TILE ---
@@ -108,5 +143,6 @@ function Tile(id, i, j, width, walkable, img) {
 
 module.exports = {
 	LoadMap: _LoadMap,
+	SaveMap: _SaveMap,
 	Map: _Map
 };

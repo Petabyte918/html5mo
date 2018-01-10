@@ -24,6 +24,8 @@ var app = new (require('./custom-modules/app.js')).App(dto, im);
 g.app = app;
 app.Start();
 
+var map = require('./custom-modules/map.js');
+
 io.on('connection', (socket) => {
 	console.log('UPDATE: session started');
 	socket.room = 'unauthenticated';
@@ -43,11 +45,15 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('cli-message', (message) => {
-		io.sockets.in(socket.room).emit('message', {
-			user : 'user',//data.name,
-			text : message,
-			timestamp : Date.now()
-		});
+		if(message[0]=='/') {
+			ProcessCommand(socket, message);
+		} else {
+			io.sockets.in(socket.room).emit('message', {
+				user : sm.sessions[sm.StripSID(socket.id)].name,
+				text : message,
+				timestamp : Date.now()
+			});
+		}
 	});
 	socket.on('cli-login', (message) => {
 		if(message.u != '') {
@@ -294,9 +300,9 @@ io.on('connection', (socket) => {
 	});
 });
 
-function ProcessCommand(socket, data) {
-	var command = data.msg.split(" ");
-	command[0] =  command[0].substring(1,command[0].length);
+function ProcessCommand(socket, msg) {
+	var command = msg.split(" ");
+	command[0] = command[0].substring(1,command[0].length);
 
 	switch(command[0]) {
 		case 'start':
@@ -318,6 +324,10 @@ function ProcessCommand(socket, data) {
 			break;
 		case 'load':
 			app.Load();
+			break;
+		case 'gm':
+			console.log('generate map');
+			map.SaveMap(new map.Map(30,20));
 			break;
 		default:
 			console.log('CLIENT FAULT: Unknown command: ' + command[0]);

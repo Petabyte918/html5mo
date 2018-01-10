@@ -46,7 +46,8 @@ class DTO {
 			instancedata.push({
 				instid:this.instRef.inst[ins].id,
 				instname:this.instRef.inst[ins].name,
-				instrun:this.instRef.inst[ins].running, 
+				instrun:this.instRef.inst[ins].running,
+				instmap: this.instRef.inst[ins].mapID,
 				objectData:objList});
 		}
 		for(ins = 0; ins<this.instRef.inst.length; ins++) {
