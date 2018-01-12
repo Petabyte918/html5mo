@@ -5,6 +5,23 @@
 	{
 		"id": 1,
 		"npc": 1,
+		"minLevel": 1,
+		"name": "You shall not pass",
+		"repeat": 1,
+		"exp": 50,
+		"money": 100,
+		"loot": [{"iid":2, "qty":1}],
+		"textStart": "You want to go futher? You will need to earn that.",
+		"textDetails": "Catch 3 Butterflies",
+		"textComplete": "Well done. They will fit nicely into my collection. Now the portal is open for you.",
+		"preq": 0,
+		"req":[
+			{"type": "kill", "mobID": 5, "qty": 3}
+		]
+	},
+	{
+		"id": 2,
+		"npc": 1,
 		"minLevel": 2,
 		"name": "Pest Control I",
 		"repeat": 1,
@@ -20,7 +37,7 @@
 		]
 	},
 	{
-		"id": 1,
+		"id": 3,
 		"npc": 1,
 		"minLevel": 3,
 		"name": "Pest Control II",

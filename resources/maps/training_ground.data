@@ -14,10 +14,12 @@
 		{"id":  3, "x": 24, "y": 3, "spawned": -1, "spawnAt": 0},
 		{"id":  3, "x": 22, "y": 2, "spawned": -1, "spawnAt": 0},
 		{"id":  4, "x": 17,  "y": 8, "spawned": -1, "spawnAt": 0},
-		{"id":  2, "x": 18,  "y": 4, "spawned": -1, "spawnAt": 0}
+		{"id":  2, "x": 18,  "y": 4, "spawned": -1, "spawnAt": 0},
+		{"id":  5, "x": 25,  "y": 10, "spawned": -1, "spawnAt": 0},
+		{"id":  5, "x": 17,  "y": 14, "spawned": -1, "spawnAt": 0}
 	],
 	"npcSpawnList": [
-		{"id":  1, "x": 9, "y": 5, "spawned": -1, "spawnAt": 0},
+		{"id":  4, "x": 9, "y": 5, "spawned": -1, "spawnAt": 0},
 		{"id":  3, "x": 6, "y": 7, "spawned": -1, "spawnAt": 0}
 	],
 	"tileData": [

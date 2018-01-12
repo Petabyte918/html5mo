@@ -103,5 +103,29 @@
 				"qmax": 10
 			}
 		]
+	},
+	{
+		"typeID": 5,
+		"level": 1,
+		"name": "Butterfly",
+		"hp": 50,
+		"hpreg": 1,
+		"patk": 2,
+		"pdef": 3,
+		"speed": 0.08,
+		"alliance": 2,
+		"img": "m_5.png",
+		"agro": false,
+		"respawn": 10,
+		"exp": 5,
+		"money": 10,
+		"loot": [
+			{
+				"id": 6,
+				"c": 0.5,
+				"qmin": 1,
+				"qmax": 1
+			}
+		]
 	}
 ]

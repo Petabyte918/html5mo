@@ -7,27 +7,29 @@
 	"textureList": {
 		"1": "tiles/grass-sparse.jpg",
 		"2": "tiles/water-plain.jpg",
-		"3": "tiles/cobblestone-regular.jpg"
+		"3": "tiles/wall.jpg",
+		"4": "tiles/cobblestone-regular.jpg",
+		"5": "tiles/grass-sparse-wall-top-bot.jpg"
 	},
 	"mobSpawnList": [
-		{"id":  1, "x": 15, "y": 7, "spawned": -1, "spawnAt": 0},
-		{"id":  2, "x": 14, "y": 3, "spawned": -1, "spawnAt": 0},
-		{"id":  2, "x": 12, "y": 2, "spawned": -1, "spawnAt": 0},
-		{"id":  3, "x": 7,  "y": 8, "spawned": -1, "spawnAt": 0},
-		{"id":  4, "x": 8,  "y": 4, "spawned": -1, "spawnAt": 0}
+		{"id":  5, "x": 15, "y": 7, "spawned": -1, "spawnAt": 0},
+		{"id":  5, "x": 14, "y": 3, "spawned": -1, "spawnAt": 0},
+		{"id":  5, "x": 12, "y": 2, "spawned": -1, "spawnAt": 0},
+		{"id":  5, "x": 7,  "y": 8, "spawned": -1, "spawnAt": 0},
+		{"id":  5, "x": 8,  "y": 4, "spawned": -1, "spawnAt": 0}
 	],
 	"npcSpawnList": [
-		{"id":  1, "x": 2, "y": 4, "spawned": -1, "spawnAt": 0},
-		{"id":  2, "x": 2, "y": 6, "spawned": -1, "spawnAt": 0}
+		{"id":  1, "x": 3, "y": 7, "spawned": -1, "spawnAt": 0},
+		{"id":  2, "x": 18, "y": 5, "spawned": -1, "spawnAt": 0}
 	],
 	"tileData": [[{
 		"id": 0,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 1,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 2,
 		"walkable": 0,
@@ -102,28 +104,28 @@
 		"img": 3
 	}], [{
 		"id": 20,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 21,
-		"walkable": 2,
-		"img": 1
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 22,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 23,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 24,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 25,
-		"walkable": 2,
-		"img": 1
+		"walkable": 0,
+		"img": 5
 	}, {
 		"id": 26,
 		"walkable": 2,
@@ -182,28 +184,28 @@
 		"img": 3
 	}], [{
 		"id": 40,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 41,
-		"walkable": 2,
-		"img": 1
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 42,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 43,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 44,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 4
 	}, {
 		"id": 45,
-		"walkable": 2,
-		"img": 1
+		"walkable": 0,
+		"img": 5
 	}, {
 		"id": 46,
 		"walkable": 2,
@@ -262,28 +264,28 @@
 		"img": 3
 	}], [{
 		"id": 60,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 61,
-		"walkable": 2,
-		"img": 1
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 62,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 63,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 64,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 4
 	}, {
 		"id": 65,
-		"walkable": 2,
-		"img": 1
+		"walkable": 0,
+		"img": 5
 	}, {
 		"id": 66,
 		"walkable": 2,
@@ -342,32 +344,32 @@
 		"img": 3
 	}], [{
 		"id": 80,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 81,
-		"walkable": 2,
-		"img": 1
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 82,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 83,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 84,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 4
 	}, {
 		"id": 85,
 		"walkable": 0,
-		"img": 3
+		"img": 5
 	}, {
 		"id": 86,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 1
 	}, {
 		"id": 87,
 		"walkable": 2,
@@ -422,24 +424,24 @@
 		"img": 3
 	}], [{
 		"id": 100,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 101,
-		"walkable": 2,
-		"img": 1
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 102,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 103,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 104,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 105,
 		"walkable": 2,
@@ -502,28 +504,28 @@
 		"img": 3
 	}], [{
 		"id": 120,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 121,
-		"walkable": 2,
-		"img": 1
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 122,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 123,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 124,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 4
 	}, {
 		"id": 125,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 1
 	}, {
 		"id": 126,
 		"walkable": 2,
@@ -582,28 +584,28 @@
 		"img": 3
 	}], [{
 		"id": 140,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 141,
-		"walkable": 2,
-		"img": 1
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 142,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 143,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 144,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 4
 	}, {
 		"id": 145,
-		"walkable": 2,
-		"img": 1
+		"walkable": 0,
+		"img": 5
 	}, {
 		"id": 146,
 		"walkable": 2,
@@ -662,32 +664,32 @@
 		"img": 3
 	}], [{
 		"id": 160,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 161,
-		"walkable": 2,
-		"img": 1
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 162,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 163,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 4
 	}, {
 		"id": 164,
 		"walkable": 2,
-		"img": 1
+		"img": 4
 	}, {
 		"id": 165,
-		"walkable": 2,
-		"img": 1
+		"walkable": 0,
+		"img": 5
 	}, {
 		"id": 166,
-		"walkable": 0,
-		"img": 3
+		"walkable": 2,
+		"img": 1
 	}, {
 		"id": 167,
 		"walkable": 2,
@@ -742,12 +744,12 @@
 		"img": 3
 	}], [{
 		"id": 180,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 181,
-		"walkable": 0,
-		"img": 3
+		"walkable": 1,
+		"img": 2
 	}, {
 		"id": 182,
 		"walkable": 0,

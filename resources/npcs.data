@@ -26,10 +26,10 @@
 			"Check out my new goods"
 		],
 		"quests": [
-			1, 2
+			1
 		],
 		"sell": [
-			1,2,3,4,5,6,7,8,9,10
+			6
 		],
 		"priceMod": 2
 	},
@@ -80,5 +80,36 @@
 		],
 		"quests": [],
 		"portalList": [1]
+	},
+	{
+		"id": 4,
+		"classType": "trader",
+		"level": 5,
+		"abstract": false,
+		"name": "Goods trader Shawn",
+		"hp": 500,
+		"hpreg": 10,
+		"patk": 3,
+		"pdef": 10,
+		"speed": 0.02,
+		"alliance": 0,
+		"img": "n_1.png",
+		"agro": false,
+		"respawn": 10,
+		"exp": 10,
+		"money": 100,
+		"loot": [],
+		"textGreet": [
+			"Hello stranger",
+			"Best price around!",
+			"Check out my new goods"
+		],
+		"quests": [
+			2,3
+		],
+		"sell": [
+			6
+		],
+		"priceMod": 2
 	}
 ]
